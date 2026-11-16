@@ -1,0 +1,21 @@
+name: Privacy and repository checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  privacy-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check reachable history without printing sensitive values
+        run: python3 scripts/privacy_guard.py --history
+      - name: Test the guard
+        run: python3 -m unittest discover -s tests

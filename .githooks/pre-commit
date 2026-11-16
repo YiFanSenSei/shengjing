@@ -1,0 +1,3 @@
+#!/bin/sh
+guard_python=$(git config --get shengjing.python || printf python)
+exec "$guard_python" scripts/privacy_guard.py --staged

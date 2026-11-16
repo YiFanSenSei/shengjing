@@ -1,0 +1,13 @@
+#!/bin/sh
+guard_python=$(git config --get shengjing.python || printf python)
+while read local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main|refs/heads/master)
+      echo 'Direct pushes to main/master are blocked by the local team hook. Use a PR.' >&2
+      exit 1 ;;
+  esac
+  case "$local_sha" in
+    0000000000000000000000000000000000000000) continue ;;
+  esac
+  "$guard_python" scripts/privacy_guard.py --history --ref "$local_sha" || exit 1
+done
