@@ -6,6 +6,8 @@
 
 负责人只在检查通过、内容检查完毕后使用 Squash and merge。禁止共享账号、令牌或 GitHub 登录会话。每人使用独立账号，建议开启双重验证；离队时撤销访问。邀请成员前确认准确 GitHub 用户名。
 
+GitHub Settings → Emails 中应启用 Keep my email addresses private，并开启阻止暴露私人邮箱的命令行推送。仅设置本地 noreply 邮箱不足以控制 GitHub 网页创建的提交及临时合并记录。合并前检查网页使用的提交邮箱。PR 隐私检查扫描贡献分支的真实历史，不把 GitHub 自动生成的测试合并记录当作成员提交。
+
 ## 每次开发
 
 ```sh
