@@ -13,7 +13,7 @@ public final class MainActivity extends Activity {
     private TextView status;
     private App app;
     private final Runnable refresh=new Runnable() { public void run() {
-        status.setText(app.status+"\n\n"+app.lastEvent+"\n\n"+app.lastFeedback);
+        status.setText(app.status+"\n\n"+app.lastEvent+"\n\n"+app.lastFeedback+"\n\n"+app.delayedTest.status);
         handler.postDelayed(this,500);
     }};
     @Override public void onCreate(Bundle state) {
@@ -42,6 +42,11 @@ public final class MainActivity extends Activity {
             if(!notificationPermission()) return;
             Alerts.show(this,app.policy.simulate(k,SystemClock.elapsedRealtime()));
         });
+        button(layout,"10 秒后发送模拟敲门（锁屏测试）",()-> {
+            if(notificationPermission()) app.delayedTest.schedule();
+        });
+        button(layout,"取消延迟测试",()->app.delayedTest.cancel());
+        text(layout,"锁屏测试：点击延迟按钮后手动锁屏，观察手表。测试会短暂保持处理器运行，最多 20 秒，不点亮屏幕；不代表长期后台监听已通过。",14);
         button(layout,"确认最近一次提醒",()->sendBroadcast(new Intent(this,FeedbackReceiver.class).setAction("ACK").putExtra("id",app.latestId)));
         button(layout,"最近一次是误报",()->sendBroadcast(new Intent(this,FeedbackReceiver.class).setAction("FALSE_ALARM").putExtra("id",app.latestId)));
         text(layout,"手表：先在配套健康应用中允许同步声境通知。能否显示操作按钮、回传确认、保留震动模式，均需 Watch X2 实测。",16);
