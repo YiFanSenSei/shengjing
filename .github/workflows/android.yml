@@ -1,0 +1,28 @@
+name: Android prototype
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Download verified tool and model
+        run: python3 scripts/bootstrap.py --gradle --model
+      - name: Build and test
+        run: |
+          export JAVA_HOME="$JAVA_HOME_17_X64"
+          tmp/tools/gradle-8.11.1/bin/gradle --no-daemon :engine:policyTest :phone:assembleDebug :watchProbe:assembleDebug :phone:lintDebug :watchProbe:lintDebug
+      - name: Upload private test APKs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: shengjing-test-apks
+          retention-days: 7
+          path: |
+            apps/phone/build/outputs/apk/debug/*.apk
+            apps/watch-probe/build/outputs/apk/debug/*.apk
