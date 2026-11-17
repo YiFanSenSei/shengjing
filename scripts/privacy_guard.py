@@ -1,5 +1,6 @@
 """Conservative project guard. No third-party dependencies; never prints matches."""
 import argparse
+import hashlib
 from pathlib import PurePosixPath
 import re
 import subprocess
@@ -24,11 +25,14 @@ PATTERNS = {
     'assigned-secret': r'''(?i)(?:api[_-]?key|access[_-]?token|secret|password)\s*[=:]\s*["'](?!REPLACE_ME|YOUR_|EXAMPLE_|PLACEHOLDER)[A-Za-z0-9_+/=-]{12,}["']''',
 }
 EMAIL = re.compile(r'[A-Za-z0-9_.+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})')
+# Owner explicitly authorized the default GitHub author email for merges.
+# Digest avoids duplicating the address in source; this is not anonymization.
+AUTHORIZED_AUTHOR_EMAIL_SHA256 = {'d3dcd7f778f2194bf585ce8be6fb4ec6856e180fa48f980c9e805c191f2c2e67'}
 
 def git(*args):
     return subprocess.check_output(['git', *args], stderr=subprocess.PIPE)
 
-def content_findings(data):
+def content_findings(data, *, commit_author=False):
     try:
         text = data.decode('utf-8-sig')
     except UnicodeDecodeError:
@@ -38,7 +42,8 @@ def content_findings(data):
     found = [name for name, regex in PATTERNS.items() if re.search(regex, text)]
     # GitHub creates squash commits with its public platform committer address.
     # Allow that exact address, never all mailboxes on github.com.
-    if any(m.group(0).lower() != 'noreply@github.com' and
+    if any(not (commit_author and hashlib.sha256(m.group(0).lower().encode()).hexdigest() in AUTHORIZED_AUTHOR_EMAIL_SHA256) and
+           m.group(0).lower() != 'noreply@github.com' and
            m.group(1).lower() not in {'example.com', 'example.org', 'example.invalid', 'users.noreply.github.com'}
            for m in EMAIL.finditer(text)):
         found.append('email-address')
@@ -74,8 +79,11 @@ def scan(staged=False, history=False, ref='HEAD'):
     for revision in refs:
         if not staged:
             # Check messages AND author/committer identity, without printing either.
-            metadata = git('show', '-s', '--format=%B%n%an <%ae>%n%cn <%ce>', revision)
+            metadata = git('show', '-s', '--format=%B%n%cn <%ce>', revision)
             for reason in content_findings(metadata):
+                issues.add(('commit-metadata', reason))
+            author = git('show', '-s', '--format=%an <%ae>', revision)
+            for reason in content_findings(author, commit_author=True):
                 issues.add(('commit-metadata', reason))
         for mode, oid, path in entries(staged, revision):
             if (mode, oid, path) in seen:
