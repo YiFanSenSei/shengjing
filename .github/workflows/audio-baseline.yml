@@ -1,0 +1,22 @@
+name: Audio baseline tooling
+on:
+  pull_request:
+    paths:
+      - 'evaluation/**'
+      - '.github/workflows/audio-baseline.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  numeric-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Test audio preprocessing and metric semantics without downloading audio
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install numpy==2.2.6 scipy==1.16.3
+          .venv/bin/python -m unittest discover -s evaluation -p 'test_audio_baseline.py'
