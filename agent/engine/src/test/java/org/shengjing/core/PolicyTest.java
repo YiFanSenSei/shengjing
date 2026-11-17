@@ -40,6 +40,24 @@ public final class PolicyTest {
         check(candidate.observe(Policy.Kind.ALARM,.5f,6).reason.equals("disabled"),"enhanced respects disabled class");
         candidate.setEnhanced(false);
         check(candidate.threshold(Policy.Kind.KNOCK)==.6f,"standard restored");
+        Policy scenes=new Policy();
+        scenes.setScene(Policy.Scene.STUDY);
+        Policy.Alert study=scenes.observe(Policy.Kind.KNOCK,.8f,0).alert;
+        check(study!=null && study.scene==Policy.Scene.STUDY,"scene captured in alert");
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,16000).reason.equals("cooldown"),"study knock repeats less frequently");
+        check(scenes.observe(Policy.Kind.ALARM,.8f,16001).alert!=null,"study alarm available");
+        check(scenes.observe(Policy.Kind.ALARM,.8f,31001).alert!=null,"study alarm keeps 15 seconds");
+        check(scenes.cooldown(Policy.Kind.DOORBELL)==15000,"doorbell unchanged in study");
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,60000).alert!=null,"study boundary allows next knock");
+        scenes.setScene(Policy.Scene.HOME);
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,60001).reason.equals("same_event"),"scene switching retains dedupe");
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,64000).reason.equals("cooldown"),"scene switching retains last alert");
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,75000).alert!=null,"home restores 15 seconds");
+        check(study.scene==Policy.Scene.STUDY,"existing event keeps original scene");
+        scenes.setQuiet(true);scenes.setScene(Policy.Scene.STUDY);
+        check(scenes.observe(Policy.Kind.ALARM,.8f,90000).reason.equals("quiet_mode"),"scene cannot override pause");
+        scenes.setQuiet(false);scenes.setEnabled(Policy.Kind.KNOCK,false);scenes.setScene(Policy.Scene.HOME);
+        check(scenes.observe(Policy.Kind.KNOCK,.8f,100000).reason.equals("disabled"),"scene cannot override user category");
         System.out.println("Policy tests passed: "+checks);
     }
 }

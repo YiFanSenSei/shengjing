@@ -12,12 +12,15 @@ public final class MainActivity extends Activity {
     private final Handler handler=new Handler(Looper.getMainLooper());
     private TextView status;
     private TextView diagnostics;
+    private TextView readiness;
+    private TextView sceneRules;
     private App app;
     private final Runnable refresh=new Runnable() { public void run() {
         status.setText(app.status+"\n\n"+app.lastEvent+"\n\n"+app.lastFeedback+"\n\n"+app.delayedTest.status);
+        readiness.setText(readinessText());
         long age=app.diagnosticsUpdatedAt==0 ? 0 : Math.max(0,(SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt)/1000);
         diagnostics.setText(app.diagnostics+(app.listening && age>=3 ? "\n已 "+age+" 秒未更新采集诊断" : ""));
-        handler.postDelayed(this,500);
+        handler.postDelayed(this,1000);
     }};
     @Override public void onCreate(Bundle state) {
         super.onCreate(state); app=(App)getApplication();
@@ -25,28 +28,44 @@ public final class MainActivity extends Activity {
         layout.setOrientation(LinearLayout.VERTICAL); layout.setPadding(32,60,32,48); scroll.addView(layout); setContentView(scroll);
         text(layout,"声境",30);
         text(layout,"重要声音，看得见，也能感受到",18);
-        text(layout,"开发测试版 · 离线识别\n声音仅在内存处理，不保存录音。模型尚未针对你的环境校准，不能作为安全报警保障。",16);
+        text(layout,"0.4.0 开发测试版 · 离线识别\n不保存或上传录音。本机保留最近 100 条提醒摘要，可随时清空。不能作为安全报警保障。",16);
         status=text(layout,"",18);
+        readiness=text(layout,"",16);
+        button(layout,"查看提醒记录与反馈",()->startActivity(new Intent(this,HistoryActivity.class)));
         button(layout,"开始监听",()-> {
             if(!permissions()) return;
             try { startForegroundService(new Intent(this,ListeningService.class)); }
             catch(RuntimeException e) { app.status="无法启动监听，请保持应用在前台并检查麦克风权限"; }
         });
         button(layout,"停止监听",()->stopService(new Intent(this,ListeningService.class)));
+        text(layout,"使用场景（手动选择，自动执行对应规则）",20);
+        RadioGroup scenes=new RadioGroup(this);layout.addView(scenes);
+        for(Policy.Scene scene:Policy.Scene.values()) {
+            RadioButton choice=new RadioButton(this);choice.setText(scene.title);choice.setId(android.view.View.generateViewId());scenes.addView(choice);
+            choice.setChecked(app.policy.getScene()==scene);
+            choice.setOnCheckedChangeListener((view,checked)-> {
+                if(checked) { app.policy.setScene(scene);app.saveSettings();updateSceneRules(); }
+            });
+        }
+        sceneRules=text(layout,"",16);updateSceneRules();
         Switch enhanced=new Switch(this); enhanced.setText("敲门 / 闹钟增强模式（试验）");layout.addView(enhanced);
         enhanced.setChecked(app.policy.isEnhanced());
-        enhanced.setOnCheckedChangeListener((button,on)->app.policy.setEnhanced(on));
-        text(layout,"增强模式更容易触发提醒，也可能增加误报。默认关闭；可切换对比，同一事件仍会去重。门铃保持原设置。",14);
+        enhanced.setOnCheckedChangeListener((button,on)->{app.policy.setEnhanced(on);app.saveSettings();});
+        text(layout,"增强模式更容易触发提醒，也可能增加误报。场景、增强模式、关注类别和暂停状态会保存在本机。门铃保持原阈值。",14);
         Switch showDiagnostics=new Switch(this); showDiagnostics.setText("显示识别诊断（仅本机内存）"); layout.addView(showDiagnostics);
         diagnostics=text(layout,app.diagnostics,14); diagnostics.setVisibility(android.view.View.GONE);
         showDiagnostics.setOnCheckedChangeListener((button,on)->diagnostics.setVisibility(on ? android.view.View.VISIBLE : android.view.View.GONE));
         Switch quiet=new Switch(this); quiet.setText("暂停真实声音提醒（监听仍继续）"); layout.addView(quiet);
         quiet.setChecked(app.policy.isQuiet());
-        quiet.setOnCheckedChangeListener((b,on)->app.policy.setQuiet(on));
+        quiet.setOnCheckedChangeListener((b,on)->{app.policy.setQuiet(on);app.saveSettings();});
         for(Policy.Kind k:Policy.Kind.values()) {
             Switch enabled=new Switch(this); enabled.setText("关注："+k.title); enabled.setChecked(app.policy.isEnabled(k)); layout.addView(enabled);
-            enabled.setOnCheckedChangeListener((b,on)->app.policy.setEnabled(k,on));
+            enabled.setOnCheckedChangeListener((b,on)->{app.policy.setEnabled(k,on);app.saveSettings();});
         }
+        button(layout,"打开系统通知设置",()->openSettings(new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName())));
+        button(layout,"打开应用权限与电池设置",()->openSettings(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            .setData(android.net.Uri.parse("package:"+getPackageName()))));
         text(layout,"设备连通测试（下列按钮不代表识别成功）",16);
         for(Policy.Kind k:Policy.Kind.values()) button(layout,"发送模拟"+k.title,()-> {
             if(!notificationPermission()) return;
@@ -60,6 +79,40 @@ public final class MainActivity extends Activity {
         button(layout,"确认最近一次提醒",()->sendBroadcast(new Intent(this,FeedbackReceiver.class).setAction("ACK").putExtra("id",app.latestId)));
         button(layout,"最近一次是误报",()->sendBroadcast(new Intent(this,FeedbackReceiver.class).setAction("FALSE_ALARM").putExtra("id",app.latestId)));
         text(layout,"手表：先在配套健康应用中允许同步声境通知。能否显示操作按钮、回传确认、保留震动模式，均需 Watch X2 实测。",16);
+    }
+    private void updateSceneRules() {
+        if(sceneRules==null) return;
+        sceneRules.setText(app.policy.getScene()==Policy.Scene.HOME
+            ? "居家：敲门、门铃、闹钟各自至少间隔 15 秒提醒；同一段持续声音只提醒一次。"
+            : "学习：敲门至少间隔 60 秒，使用短振动；门铃和闹钟仍至少间隔 15 秒。同一段持续声音只提醒一次。手表实际振动取决于通知同步设置。");
+    }
+    private String readinessText() {
+        StringBuilder text=new StringBuilder("当前场景：").append(app.policy.getScene().title)
+            .append(" · ").append(app.policy.isEnhanced()?"增强模式":"标准模式")
+            .append("\n真实提醒：").append(app.policy.isQuiet()?"已暂停（重启后仍保留暂停）":"已开启")
+            .append("\n麦克风权限：").append(checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED?"已允许":"未允许");
+        android.app.NotificationManager nm=getSystemService(android.app.NotificationManager.class);
+        int enabled=0;
+        for(Policy.Kind kind:Policy.Kind.values()) {
+            if(!app.policy.isEnabled(kind)) continue;
+            enabled++;
+            String channel=Alerts.channel(kind,app.policy.getScene());
+            text.append("\n").append(kind.title).append("通知：");
+            if(!Alerts.available(this,channel)) text.append("被阻止，请检查系统通知设置");
+            else {
+                android.app.NotificationChannel settings=nm.getNotificationChannel(channel);
+                text.append(settings.shouldVibrate()?"已允许振动":"振动关闭");
+            }
+        }
+        if(enabled==0) text.append("\n所有声音类别均已关闭，不会产生真实提醒");
+        PowerManager power=getSystemService(PowerManager.class);
+        text.append("\n系统电池优化：").append(power.isIgnoringBatteryOptimizations(getPackageName())?"已豁免":"仍受优化，长时间锁屏需验证");
+        text.append("\n手表同步状态无法自动确认，请在配套健康应用中检查。");
+        return text.toString();
+    }
+    private void openSettings(Intent intent) {
+        try { startActivity(intent); }
+        catch(ActivityNotFoundException e) { app.status="请手动进入系统设置 → 应用 → 声境"; }
     }
     private boolean notificationPermission() {
         if(Build.VERSION.SDK_INT>=33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED) {

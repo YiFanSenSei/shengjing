@@ -10,3 +10,9 @@ tasks.register('diagnosticsTest', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'org.shengjing.core.AudioDiagnosticsTest'
 }
+
+tasks.register('historyTest', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.shengjing.core.EventHistoryTest'
+}
