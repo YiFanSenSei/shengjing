@@ -24,6 +24,9 @@ public final class AudioDiagnostics {
     }
 
     public String updateLevel(double dbfs,float[] scores,String[] reasons,String topLabel,float topScore,long inferenceMs) {
+        return updateLevel(dbfs,scores,reasons,topLabel,topScore,inferenceMs,false);
+    }
+    public String updateLevel(double dbfs,float[] scores,String[] reasons,String topLabel,float topScore,long inferenceMs,boolean enhanced) {
         if(scores.length!=peaks.length || reasons.length!=peaks.length) throw new IllegalArgumentException("Wrong class count");
         if(Double.isNaN(dbfs) || dbfs>0) throw new IllegalArgumentException("Invalid digital level");
         frames++;
@@ -32,7 +35,9 @@ public final class AudioDiagnostics {
             .append(Double.isInfinite(dbfs) ? "全零音频" : String.format(Locale.ROOT,"%.1f dBFS",dbfs))
             .append("（数字电平，不是环境分贝）\n模型最高分类：")
             .append(topLabel==null ? "未返回有效分类" : topLabel+" · "+scoreText(topScore))
-            .append("\n提醒阈值：").append(String.format(Locale.ROOT,"%.2f",Policy.THRESHOLD))
+            .append("\n模式：").append(enhanced?"增强（试验）":"标准")
+            .append(" · 敲门/闹钟阈值：").append(String.format(Locale.ROOT,"%.2f",enhanced?Policy.ENHANCED_THRESHOLD:Policy.THRESHOLD))
+            .append(" · 门铃阈值：0.60")
             .append("（分数不等于准确率）");
         for(Policy.Kind kind:Policy.Kind.values()) {
             int i=kind.ordinal();
