@@ -103,7 +103,7 @@ public final class ListeningService extends Service {
                         Policy.Decision decision=app.policy.observe(kind,scores[i],at);reasons[i]=decision.reason;
                         if(decision.alert!=null) Alerts.show(this,decision.alert);
                     }
-                    app.diagnostics=diagnostics.updateLevel(dbfs,scores,reasons,topLabel,topScore,inferenceMs);
+                    app.diagnostics=diagnostics.updateLevel(dbfs,scores,reasons,topLabel,topScore,inferenceMs,app.policy.isEnhanced());
                     app.diagnosticsUpdatedAt=at;
                 });
                 Thread.sleep(250);

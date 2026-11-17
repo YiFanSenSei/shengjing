@@ -6,6 +6,11 @@ import java.util.Map;
 
 /** Deterministic notification policy. All times are monotonic milliseconds. */
 public final class Policy {
+    public enum Scene {
+        HOME("居家"), STUDY("学习");
+        public final String title;
+        Scene(String title) { this.title=title; }
+    }
     public enum Kind {
         KNOCK("敲门", "Knock"), DOORBELL("门铃", "Doorbell"), ALARM("闹钟", "Alarm clock");
         public final String title;
@@ -17,8 +22,10 @@ public final class Policy {
         public final Kind kind;
         public final boolean simulated;
         public final float score;
-        Alert(long id, Kind kind, float score, long now, boolean simulated) {
+        public final Scene scene;
+        Alert(long id, Kind kind, float score, long now, boolean simulated, Scene scene) {
             this.id=id; this.kind=kind; this.score=score; this.detectedAt=now; this.simulated=simulated;
+            this.scene=scene;
         }
     }
     public static final class Decision {
@@ -32,8 +39,19 @@ public final class Policy {
     private final Map<Kind, Boolean> enabled = new EnumMap<>(Kind.class);
     private long sequence=0, clock=-1;
     private boolean quiet=false;
+    private boolean enhanced=false;
+    private Scene scene=Scene.HOME;
+    public synchronized void setScene(Scene value) { scene=java.util.Objects.requireNonNull(value); }
+    public synchronized Scene getScene() { return scene; }
+    public synchronized long cooldown(Kind kind) { return scene==Scene.STUDY && kind==Kind.KNOCK ? 60000 : COOLDOWN_MS; }
     public static final long SILENCE_GAP_MS=2500, COOLDOWN_MS=15000;
     public static final float THRESHOLD=0.60f;
+    public static final float ENHANCED_THRESHOLD=0.40f;
+    public synchronized void setEnhanced(boolean value) { enhanced=value; }
+    public synchronized boolean isEnhanced() { return enhanced; }
+    public synchronized float threshold(Kind kind) {
+        return enhanced && kind!=Kind.DOORBELL ? ENHANCED_THRESHOLD : THRESHOLD;
+    }
 
     public Policy() { for (Kind k:Kind.values()) { states.put(k,new State()); enabled.put(k,true); } }
     public synchronized void setQuiet(boolean value) { quiet=value; }
@@ -44,14 +62,14 @@ public final class Policy {
         if (kind==null || !Float.isFinite(score) || score<0 || score>1 || now<0 || now<clock)
             return new Decision(null,"invalid_event");
         clock=now;
-        if (score<THRESHOLD) return new Decision(null,"below_threshold");
+        if (score<threshold(kind)) return new Decision(null,"below_threshold");
         State s=states.get(kind);
         boolean continuing=s.lastSeen>=0 && now-s.lastSeen<=SILENCE_GAP_MS;
         s.lastSeen=now;
         if (!enabled.get(kind)) return new Decision(null,"disabled");
         if (quiet) return new Decision(null,"quiet_mode");
         if (continuing) return new Decision(null,"same_event");
-        if (s.lastAlert>=0 && now-s.lastAlert<COOLDOWN_MS) return new Decision(null,"cooldown");
+        if (s.lastAlert>=0 && now-s.lastAlert<cooldown(kind)) return new Decision(null,"cooldown");
         s.lastAlert=now;
         return new Decision(add(kind,score,now,false),"new_event");
     }
@@ -61,7 +79,7 @@ public final class Policy {
     }
     private Alert add(Kind kind,float score,long now,boolean simulated) {
         if (pending.size()>=100) pending.clear(); // bounded in-memory prototype state
-        Alert alert=new Alert(++sequence,kind,score,now,simulated);
+        Alert alert=new Alert(++sequence,kind,score,now,simulated,scene);
         pending.put(alert.id,alert);
         return alert;
     }
