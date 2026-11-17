@@ -19,6 +19,11 @@ class GuardTests(unittest.TestCase):
     def test_safe_examples(self):
         self.assertEqual([], guard.content_findings(b'USER_001 REPLACE_ME user@example.com'))
 
+    def test_github_platform_committer_only(self):
+        self.assertEqual([], guard.content_findings(b'GitHub <noreply@github.com>'))
+        for address in ['person'+'@github.com', 'noreply'+'@github.com.example.net']:
+            self.assertIn('email-address', guard.content_findings(address.encode()))
+
     def test_restricted_files(self):
         for path in ['recordings/sample.wav', '.env', 'key.pem', 'survey.xlsx', 'image.png', 'local.properties']:
             self.assertTrue(guard.path_findings(path))

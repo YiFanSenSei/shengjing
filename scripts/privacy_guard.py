@@ -36,7 +36,11 @@ def content_findings(data):
     if '\0' in text:
         return ['binary-content']
     found = [name for name, regex in PATTERNS.items() if re.search(regex, text)]
-    if any(m.group(1).lower() not in {'example.com', 'example.org', 'example.invalid', 'users.noreply.github.com'} for m in EMAIL.finditer(text)):
+    # GitHub creates squash commits with its public platform committer address.
+    # Allow that exact address, never all mailboxes on github.com.
+    if any(m.group(0).lower() != 'noreply@github.com' and
+           m.group(1).lower() not in {'example.com', 'example.org', 'example.invalid', 'users.noreply.github.com'}
+           for m in EMAIL.finditer(text)):
         found.append('email-address')
     return found
 
