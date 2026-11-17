@@ -26,6 +26,20 @@ public final class PolicyTest {
         p.resetListeningSession();
         check(p.simulate(Policy.Kind.KNOCK,0).simulated,"simulation tagged");
         check(p.observe(Policy.Kind.KNOCK,.9f,1).alert!=null,"simulation leaves live state alone");
+        Policy candidate=new Policy();
+        check(candidate.observe(Policy.Kind.KNOCK,.5f,0).alert==null,"standard rejects moderate score");
+        candidate.setEnhanced(true);
+        check(candidate.observe(Policy.Kind.KNOCK,.4f,1).alert!=null,"enhanced knock boundary");
+        check(candidate.observe(Policy.Kind.ALARM,.4f,2).alert!=null,"enhanced alarm boundary");
+        check(candidate.observe(Policy.Kind.DOORBELL,.5f,3).alert==null,"doorbell unchanged");
+        candidate.setEnhanced(false);candidate.setEnhanced(true);
+        check(candidate.observe(Policy.Kind.KNOCK,.5f,4).alert==null,"mode toggle preserves dedupe");
+        candidate.resetListeningSession();candidate.setQuiet(true);
+        check(candidate.observe(Policy.Kind.KNOCK,.5f,5).reason.equals("quiet_mode"),"enhanced respects pause");
+        candidate.setQuiet(false);candidate.setEnabled(Policy.Kind.ALARM,false);
+        check(candidate.observe(Policy.Kind.ALARM,.5f,6).reason.equals("disabled"),"enhanced respects disabled class");
+        candidate.setEnhanced(false);
+        check(candidate.threshold(Policy.Kind.KNOCK)==.6f,"standard restored");
         System.out.println("Policy tests passed: "+checks);
     }
 }

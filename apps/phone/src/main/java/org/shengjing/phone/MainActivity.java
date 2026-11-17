@@ -33,6 +33,10 @@ public final class MainActivity extends Activity {
             catch(RuntimeException e) { app.status="无法启动监听，请保持应用在前台并检查麦克风权限"; }
         });
         button(layout,"停止监听",()->stopService(new Intent(this,ListeningService.class)));
+        Switch enhanced=new Switch(this); enhanced.setText("敲门 / 闹钟增强模式（试验）");layout.addView(enhanced);
+        enhanced.setChecked(app.policy.isEnhanced());
+        enhanced.setOnCheckedChangeListener((button,on)->app.policy.setEnhanced(on));
+        text(layout,"增强模式更容易触发提醒，也可能增加误报。默认关闭；可切换对比，同一事件仍会去重。门铃保持原设置。",14);
         Switch showDiagnostics=new Switch(this); showDiagnostics.setText("显示识别诊断（仅本机内存）"); layout.addView(showDiagnostics);
         diagnostics=text(layout,app.diagnostics,14); diagnostics.setVisibility(android.view.View.GONE);
         showDiagnostics.setOnCheckedChangeListener((button,on)->diagnostics.setVisibility(on ? android.view.View.VISIBLE : android.view.View.GONE));

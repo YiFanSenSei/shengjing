@@ -1,0 +1,1046 @@
+{
+  "status": "exploratory_same_data_replay",
+  "candidate": {
+    "Knock": 0.4,
+    "Alarm clock": 0.4,
+    "Doorbell": 0.6
+  },
+  "grid": {
+    "0.6": {
+      "clips": 2000,
+      "threshold": 0.6,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 27,
+          "clip_recall": 0.675,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 6,
+          "label_negative_alert_fraction": 0.003061224489795918,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 2
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 27,
+          "clip_recall": 0.675,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "0.5": {
+      "clips": 2000,
+      "threshold": 0.5,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 32,
+          "clip_recall": 0.8,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 7,
+          "label_negative_alert_fraction": 0.0035714285714285713,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 3
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 30,
+          "clip_recall": 0.75,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "0.4": {
+      "clips": 2000,
+      "threshold": 0.4,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 35,
+          "clip_recall": 0.875,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 7,
+          "label_negative_alert_fraction": 0.0035714285714285713,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 3
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 32,
+          "clip_recall": 0.8,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "0.3": {
+      "clips": 2000,
+      "threshold": 0.3,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 35,
+          "clip_recall": 0.875,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 9,
+          "label_negative_alert_fraction": 0.004591836734693878,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 3,
+            "clock_tick": 1,
+            "rooster": 1
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 33,
+          "clip_recall": 0.825,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 1,
+          "label_negative_alert_fraction": 0.0005102040816326531,
+          "confusing_categories": {
+            "clock_tick": 1
+          }
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 1,
+          "label_negative_alert_fraction": 0.0005,
+          "confusing_categories": {
+            "church_bells": 1
+          }
+        }
+      }
+    },
+    "0.2": {
+      "clips": 2000,
+      "threshold": 0.2,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 37,
+          "clip_recall": 0.925,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 10,
+          "label_negative_alert_fraction": 0.00510204081632653,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 3,
+            "clock_tick": 1,
+            "rooster": 1,
+            "water_drops": 1
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 34,
+          "clip_recall": 0.85,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 3,
+          "label_negative_alert_fraction": 0.001530612244897959,
+          "confusing_categories": {
+            "clock_tick": 3
+          }
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 2,
+          "label_negative_alert_fraction": 0.001,
+          "confusing_categories": {
+            "church_bells": 1,
+            "clock_alarm": 1
+          }
+        }
+      }
+    },
+    "0.1": {
+      "clips": 2000,
+      "threshold": 0.1,
+      "classes": {
+        "Knock": {
+          "positives": 40,
+          "hits": 39,
+          "clip_recall": 0.975,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 29,
+          "label_negative_alert_fraction": 0.01479591836734694,
+          "confusing_categories": {
+            "footsteps": 8,
+            "door_wood_creaks": 7,
+            "clock_tick": 2,
+            "fireworks": 2,
+            "hand_saw": 2,
+            "rooster": 2,
+            "can_opening": 1,
+            "clapping": 1,
+            "glass_breaking": 1,
+            "mouse_click": 1,
+            "toilet_flush": 1,
+            "water_drops": 1
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 37,
+          "clip_recall": 0.925,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 10,
+          "label_negative_alert_fraction": 0.00510204081632653,
+          "confusing_categories": {
+            "clock_tick": 10
+          }
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 6,
+          "label_negative_alert_fraction": 0.003,
+          "confusing_categories": {
+            "clock_alarm": 4,
+            "church_bells": 1,
+            "mouse_click": 1
+          }
+        }
+      }
+    }
+  },
+  "conditions": {
+    "DKITCHEN_0dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 0,
+          "clip_recall": 0.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 0,
+          "clip_recall": 0.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DKITCHEN_10dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 1,
+          "clip_recall": 0.125,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 2,
+          "clip_recall": 0.25,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DKITCHEN_20dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 3,
+          "clip_recall": 0.375,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 5,
+          "clip_recall": 0.625,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DKITCHEN_noise_only": {
+      "0.6": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DLIVING_0dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 0,
+          "clip_recall": 0.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 5,
+          "clip_recall": 0.625,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 0,
+          "clip_recall": 0.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 5,
+          "clip_recall": 0.625,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DLIVING_10dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 3,
+          "clip_recall": 0.375,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 6,
+          "clip_recall": 0.75,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 4,
+          "clip_recall": 0.5,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DLIVING_20dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 5,
+          "clip_recall": 0.625,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 6,
+          "clip_recall": 0.75,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "DLIVING_noise_only": {
+      "0.6": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "OOFFICE_0dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 3,
+          "clip_recall": 0.375,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 3,
+          "clip_recall": 0.375,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "OOFFICE_10dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 5,
+          "clip_recall": 0.625,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 6,
+          "clip_recall": 0.75,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "OOFFICE_20dB": {
+      "0.6": {
+        "Knock": {
+          "positives": 8,
+          "hits": 6,
+          "clip_recall": 0.75,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 8,
+          "hits": 7,
+          "clip_recall": 0.875,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 1,
+          "label_negative_alert_fraction": 0.017857142857142856,
+          "confusing_categories": {
+            "footsteps": 1
+          }
+        },
+        "Alarm clock": {
+          "positives": 8,
+          "hits": 8,
+          "clip_recall": 1.0,
+          "label_negative_clips": 56,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "OOFFICE_noise_only": {
+      "0.6": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Alarm clock": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 64,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    },
+    "clean": {
+      "0.6": {
+        "Knock": {
+          "positives": 40,
+          "hits": 27,
+          "clip_recall": 0.675,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 6,
+          "label_negative_alert_fraction": 0.003061224489795918,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 2
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 27,
+          "clip_recall": 0.675,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      },
+      "0.4": {
+        "Knock": {
+          "positives": 40,
+          "hits": 35,
+          "clip_recall": 0.875,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 7,
+          "label_negative_alert_fraction": 0.0035714285714285713,
+          "confusing_categories": {
+            "footsteps": 4,
+            "door_wood_creaks": 3
+          }
+        },
+        "Alarm clock": {
+          "positives": 40,
+          "hits": 32,
+          "clip_recall": 0.8,
+          "label_negative_clips": 1960,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        },
+        "Doorbell": {
+          "positives": 0,
+          "hits": 0,
+          "clip_recall": null,
+          "label_negative_clips": 2000,
+          "label_negative_alerts": 0,
+          "label_negative_alert_fraction": 0.0,
+          "confusing_categories": {}
+        }
+      }
+    }
+  }
+}
