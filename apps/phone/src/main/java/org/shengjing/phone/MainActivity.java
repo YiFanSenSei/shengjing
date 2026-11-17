@@ -11,9 +11,12 @@ import org.shengjing.core.Policy;
 public final class MainActivity extends Activity {
     private final Handler handler=new Handler(Looper.getMainLooper());
     private TextView status;
+    private TextView diagnostics;
     private App app;
     private final Runnable refresh=new Runnable() { public void run() {
         status.setText(app.status+"\n\n"+app.lastEvent+"\n\n"+app.lastFeedback+"\n\n"+app.delayedTest.status);
+        long age=app.diagnosticsUpdatedAt==0 ? 0 : Math.max(0,(SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt)/1000);
+        diagnostics.setText(app.diagnostics+(app.listening && age>=3 ? "\n已 "+age+" 秒未更新采集诊断" : ""));
         handler.postDelayed(this,500);
     }};
     @Override public void onCreate(Bundle state) {
@@ -30,6 +33,9 @@ public final class MainActivity extends Activity {
             catch(RuntimeException e) { app.status="无法启动监听，请保持应用在前台并检查麦克风权限"; }
         });
         button(layout,"停止监听",()->stopService(new Intent(this,ListeningService.class)));
+        Switch showDiagnostics=new Switch(this); showDiagnostics.setText("显示识别诊断（仅本机内存）"); layout.addView(showDiagnostics);
+        diagnostics=text(layout,app.diagnostics,14); diagnostics.setVisibility(android.view.View.GONE);
+        showDiagnostics.setOnCheckedChangeListener((button,on)->diagnostics.setVisibility(on ? android.view.View.VISIBLE : android.view.View.GONE));
         Switch quiet=new Switch(this); quiet.setText("暂停真实声音提醒（监听仍继续）"); layout.addView(quiet);
         quiet.setChecked(app.policy.isQuiet());
         quiet.setOnCheckedChangeListener((b,on)->app.policy.setQuiet(on));

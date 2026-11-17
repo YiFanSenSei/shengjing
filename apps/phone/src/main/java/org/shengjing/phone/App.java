@@ -11,5 +11,8 @@ public final class App extends Application {
     public volatile String lastFeedback="暂无反馈";
     public volatile long latestId=-1;
     public final DelayedTestReminder delayedTest=new DelayedTestReminder(this);
+    public volatile long audioSession;
+    public volatile long diagnosticsUpdatedAt;
+    public volatile String diagnostics="尚无采集数据，请开始监听";
     @Override public void onCreate() { super.onCreate(); Alerts.channels(this); }
 }
