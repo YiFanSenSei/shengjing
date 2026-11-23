@@ -1,0 +1,187 @@
+{
+  "model_sha256": "10c95ea3eb9a7bb4cb8bddf6feb023250381008177ac162ce169694d05c317de",
+  "threshold": 0.6,
+  "window": 15600,
+  "hop": 4000,
+  "sample_rate": 16000,
+  "tensorflow": "2.20.0",
+  "decoder": "0.13.1",
+  "rows": [
+    {
+      "file": "Doorbell-classic-dingdong.ogg",
+      "sha1": "19a3463c37d4de915d58d54050b8d65d7445e63f",
+      "rate": 44100,
+      "channels": 2,
+      "noise_offset": 4158420,
+      "conditions": {
+        "original": {
+          "doorbell_peak": 0.19921875,
+          "crossed": false,
+          "top_peak_label": "Music",
+          "top_peak": 0.890625,
+          "windows": 40
+        },
+        "background": {
+          "doorbell_peak": 0.0,
+          "crossed": false,
+          "top_peak_label": "Silence",
+          "top_peak": 0.890625,
+          "windows": 40
+        },
+        "20dB": {
+          "doorbell_peak": 0.109375,
+          "crossed": false,
+          "top_peak_label": "Tuning fork",
+          "top_peak": 0.80078125,
+          "windows": 40
+        },
+        "10dB": {
+          "doorbell_peak": 0.109375,
+          "crossed": false,
+          "top_peak_label": "Music",
+          "top_peak": 0.91796875,
+          "windows": 40
+        },
+        "0dB": {
+          "doorbell_peak": 0.08203125,
+          "crossed": false,
+          "top_peak_label": "Chime",
+          "top_peak": 0.98046875,
+          "windows": 40
+        }
+      }
+    },
+    {
+      "file": "Doorbell-cheap-dingdong.ogg",
+      "sha1": "735ac5e1e9240edee12a853d363c64d34c2a010f",
+      "rate": 44100,
+      "channels": 2,
+      "noise_offset": 3233607,
+      "conditions": {
+        "original": {
+          "doorbell_peak": 0.80078125,
+          "crossed": true,
+          "top_peak_label": "Doorbell",
+          "top_peak": 0.80078125,
+          "windows": 8
+        },
+        "background": {
+          "doorbell_peak": 0.0,
+          "crossed": false,
+          "top_peak_label": "Silence",
+          "top_peak": 0.80078125,
+          "windows": 8
+        },
+        "20dB": {
+          "doorbell_peak": 0.1484375,
+          "crossed": false,
+          "top_peak_label": "Music",
+          "top_peak": 0.5859375,
+          "windows": 8
+        },
+        "10dB": {
+          "doorbell_peak": 0.01953125,
+          "crossed": false,
+          "top_peak_label": "Music",
+          "top_peak": 0.890625,
+          "windows": 8
+        },
+        "0dB": {
+          "doorbell_peak": 0.00390625,
+          "crossed": false,
+          "top_peak_label": "Music",
+          "top_peak": 0.80078125,
+          "windows": 8
+        }
+      }
+    },
+    {
+      "file": "Doorbell-old-tring.ogg",
+      "sha1": "35c3fe8f970a20abfeb0acae43c5e36968a26511",
+      "rate": 44100,
+      "channels": 2,
+      "noise_offset": 3221995,
+      "conditions": {
+        "original": {
+          "doorbell_peak": 0.26171875,
+          "crossed": false,
+          "top_peak_label": "Telephone",
+          "top_peak": 0.99609375,
+          "windows": 15
+        },
+        "background": {
+          "doorbell_peak": 0.0,
+          "crossed": false,
+          "top_peak_label": "Silence",
+          "top_peak": 0.73828125,
+          "windows": 15
+        },
+        "20dB": {
+          "doorbell_peak": 0.01953125,
+          "crossed": false,
+          "top_peak_label": "Telephone",
+          "top_peak": 0.9921875,
+          "windows": 15
+        },
+        "10dB": {
+          "doorbell_peak": 0.03125,
+          "crossed": false,
+          "top_peak_label": "Telephone",
+          "top_peak": 0.91796875,
+          "windows": 15
+        },
+        "0dB": {
+          "doorbell_peak": 0.03125,
+          "crossed": false,
+          "top_peak_label": "Tools",
+          "top_peak": 0.5859375,
+          "windows": 15
+        }
+      }
+    },
+    {
+      "file": "Electronic_doorbell.ogg",
+      "sha1": "435699e7886b531c5569739b31fe87b58bbd0cec",
+      "rate": 48000,
+      "channels": 2,
+      "noise_offset": 2629804,
+      "conditions": {
+        "original": {
+          "doorbell_peak": 0.98828125,
+          "crossed": true,
+          "top_peak_label": "Doorbell",
+          "top_peak": 0.98828125,
+          "windows": 28
+        },
+        "background": {
+          "doorbell_peak": 0.0,
+          "crossed": false,
+          "top_peak_label": "Silence",
+          "top_peak": 0.95703125,
+          "windows": 28
+        },
+        "20dB": {
+          "doorbell_peak": 0.984375,
+          "crossed": true,
+          "top_peak_label": "Doorbell",
+          "top_peak": 0.984375,
+          "windows": 28
+        },
+        "10dB": {
+          "doorbell_peak": 0.95703125,
+          "crossed": true,
+          "top_peak_label": "Doorbell",
+          "top_peak": 0.95703125,
+          "windows": 28
+        },
+        "0dB": {
+          "doorbell_peak": 0.8515625,
+          "crossed": true,
+          "top_peak_label": "Music",
+          "top_peak": 0.91796875,
+          "windows": 28
+        }
+      }
+    }
+  ]
+}
