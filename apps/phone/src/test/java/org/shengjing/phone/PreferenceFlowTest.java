@@ -34,7 +34,7 @@ public final class PreferenceFlowTest {
     private void feedback(long id, String action) {
         new FeedbackReceiver().onReceive(app,new Intent(action).putExtra("id",id));
     }
-    private static Button findButton(View view, String label) {
+    static Button findButton(View view, String label) {
         if (view instanceof Button && label.contentEquals(((Button) view).getText())) return (Button)view;
         if (view instanceof ViewGroup group) {
             for (int i=0;i<group.getChildCount();i++) {
@@ -93,7 +93,7 @@ public final class PreferenceFlowTest {
         assertFalse(app.chooseInterval(HOME,Policy.Kind.ALARM,true));
     }
     @Test public void previewDoesNotConsumeLiveCooldownOrCreateHistory() {
-        try(var screen=Robolectric.buildActivity(MainActivity.class).setup()) {
+        try(var screen=Robolectric.buildActivity(OptionsActivity.class).setup()) {
             findButton(screen.get().getWindow().getDecorView(),"预览当前场景的敲门策略").performClick();
             assertTrue(org.robolectric.shadows.ShadowAlertDialog.getLatestAlertDialog().isShowing());
             assertTrue(app.history.snapshot().isEmpty());
