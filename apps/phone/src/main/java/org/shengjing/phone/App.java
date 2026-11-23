@@ -5,6 +5,7 @@ import org.shengjing.core.Policy;
 import org.shengjing.core.EventHistory;
 
 public final class App extends Application {
+    static final int REPORTS_NEEDED = 2;
     public final Policy policy=new Policy();
     LocalStore store;
     EventHistory history;
@@ -26,6 +27,16 @@ public final class App extends Application {
     }
     void saveSettings() { store.saveSettings(policy); }
     void saveHistory() { store.saveHistory(history);historyRevision++; }
+    int frequentReports(Policy.Scene scene, Policy.Kind kind) {
+        return history.frequentReports(scene, kind, store.consideredThrough(scene, kind));
+    }
+    boolean chooseInterval(Policy.Scene scene, Policy.Kind kind, boolean extend) {
+        if (kind == Policy.Kind.ALARM || (extend && frequentReports(scene, kind) < REPORTS_NEEDED)) return false;
+        store.recordChoice(scene, kind, extend, history.sequence());
+        policy.setLessFrequent(scene, kind, extend);
+        historyRevision++;
+        return true;
+    }
     void clearHistory() {
         for(EventHistory.Entry e:history.snapshot()) Alerts.cancel(this,e.id);
         history.clear();saveHistory();latestId=-1;lastEvent="暂无事件";lastFeedback="本机提醒记录已清空";

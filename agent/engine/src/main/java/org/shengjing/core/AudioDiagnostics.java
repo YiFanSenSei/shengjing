@@ -52,7 +52,7 @@ public final class AudioDiagnostics {
     public long frames() { return frames; }
     private static boolean validScore(float value) { return Float.isFinite(value) && value>=0 && value<=1; }
     private static String scoreText(float value) { return validScore(value) ? String.format(Locale.ROOT,"%.3f",value) : "未返回"; }
-    private static String reasonText(String reason) {
+    public static String reasonText(String reason) {
         if(reason==null) return "未返回目标类别";
         switch(reason) {
             case "new_event": return "已请求提醒";
