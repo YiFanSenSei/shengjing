@@ -27,6 +27,9 @@ if __name__=='__main__':
     if args.model:
         download('https://storage.googleapis.com/download.tensorflow.org/models/tflite/task_library/audio_classification/android/lite-model_yamnet_classification_tflite_1.tflite',ROOT/'apps/phone/src/main/assets/yamnet.tflite',MODEL_SHA)
         print('YAMNet ready (SHA-256 verified).')
+        assets=ROOT/'apps/phone/src/main/assets'
+        with zipfile.ZipFile(assets/'yamnet.tflite') as model:
+            (assets/'yamnet_label_list.txt').write_bytes(model.read('yamnet_label_list.txt'))
     if args.gradle:
         archive=ROOT/'tmp/tools/gradle-8.11.1-bin.zip'
         download('https://services.gradle.org/distributions/gradle-8.11.1-bin.zip',archive,GRADLE_SHA)

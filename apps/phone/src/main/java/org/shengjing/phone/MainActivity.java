@@ -41,7 +41,7 @@ public final class MainActivity extends Activity {
         layout.setOrientation(LinearLayout.VERTICAL); layout.setPadding(32,60,32,48); scroll.addView(layout); setContentView(scroll);
         text(layout,"声境",30);
         text(layout,"重要声音，看得见，也能感受到",18);
-        text(layout,"0.5.0 开发测试版 · 离线识别\n不保存或上传录音。本机保留最近 100 条提醒摘要，可随时清空。不能作为安全报警保障。",16);
+        text(layout,"0.5.1 开发测试版 · 离线识别\n不保存或上传录音。本机保留最近 100 条提醒摘要，可随时清空。不能作为安全报警保障。",16);
         status=text(layout,"",18);
         readiness=text(layout,"",16);
         historyButton=button(layout,"查看提醒记录与反馈",()->startActivity(new Intent(this,HistoryActivity.class)));

@@ -37,6 +37,7 @@ tmp/
 *.p12
 *.onnx
 *.tflite
+apps/phone/src/main/assets/yamnet_label_list.txt
 *.pt
 *.pth
 *.apk

@@ -18,7 +18,9 @@ jobs:
         run: |
           export JAVA_HOME="$JAVA_HOME_17_X64"
           tmp/tools/gradle-8.11.1/bin/gradle --no-daemon :engine:policyTest :engine:diagnosticsTest :engine:historyTest :phone:testDebugUnitTest :phone:assembleDebug :watchProbe:assembleDebug :phone:lintDebug :watchProbe:lintDebug
-      - name: Upload private test APKs
+      - name: Verify 16 KB native library alignment
+        run: python3 scripts/check_apk_pages.py apps/phone/build/outputs/apk/debug/phone-debug.apk
+      - name: Upload test APKs
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: shengjing-test-apks
