@@ -6,7 +6,7 @@ import java.util.List;
 /** Bounded local metadata. IDs survive process restarts and clearing history. No audio or text transcripts. */
 public final class EventHistory {
     public static final int LIMIT=100;
-    public enum Feedback { PENDING, ACK, FALSE_ALARM }
+    public enum Feedback { PENDING, ACK, FALSE_ALARM, TOO_FREQUENT, ACK_TOO_FREQUENT }
     public enum Delivery { REQUESTED, BLOCKED, FAILED }
     public static final class Entry {
         public final long id, time;
@@ -47,14 +47,30 @@ public final class EventHistory {
         return null;
     }
     public synchronized Entry feedback(long id,Feedback value) {
-        if(value==null || value==Feedback.PENDING) return null;
+        if(value==null || value==Feedback.PENDING || value==Feedback.ACK_TOO_FREQUENT) return null;
         for(int i=0;i<entries.size();i++) {
             Entry e=entries.get(i);
+            if (e.id == id && value == Feedback.TOO_FREQUENT) {
+                if (e.simulated || e.delivery != Delivery.REQUESTED ||
+                    (e.feedback != Feedback.PENDING && e.feedback != Feedback.ACK)) return null;
+                Entry updated = e.withFeedback(e.feedback == Feedback.ACK ? Feedback.ACK_TOO_FREQUENT : value);
+                entries.set(i, updated);
+                return updated;
+            }
             if(e.id==id && e.feedback==Feedback.PENDING) {
                 Entry updated=e.withFeedback(value);entries.set(i,updated);return updated;
             }
         }
         return null;
+    }
+    public synchronized int frequentReports(Policy.Scene scene, Policy.Kind kind, long afterId) {
+        int count = 0;
+        for (Entry entry : entries) {
+            if (entry.scene == scene && entry.kind == kind && entry.id > afterId &&
+                !entry.simulated && entry.delivery == Delivery.REQUESTED &&
+                (entry.feedback == Feedback.TOO_FREQUENT || entry.feedback == Feedback.ACK_TOO_FREQUENT)) count++;
+        }
+        return count;
     }
     public synchronized void delivery(long id,Delivery value) {
         for(int i=0;i<entries.size();i++) if(entries.get(i).id==id) { entries.set(i,entries.get(i).withDelivery(value));return; }

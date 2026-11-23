@@ -14,10 +14,23 @@ public final class MainActivity extends Activity {
     private TextView diagnostics;
     private TextView readiness;
     private TextView sceneRules;
+    private Button historyButton;
+    private long renderedHistoryRevision = -1;
     private App app;
     private final Runnable refresh=new Runnable() { public void run() {
         status.setText(app.status+"\n\n"+app.lastEvent+"\n\n"+app.lastFeedback+"\n\n"+app.delayedTest.status);
         readiness.setText(readinessText());
+        if (renderedHistoryRevision != app.historyRevision) {
+            int suggestions = 0;
+            for (Policy.Scene scene : Policy.Scene.values()) {
+                for (Policy.Kind kind : Policy.Kind.values()) {
+                    if (kind != Policy.Kind.ALARM && !app.policy.isLessFrequent(scene, kind) &&
+                        app.frequentReports(scene,kind) >= App.REPORTS_NEEDED) suggestions++;
+                }
+            }
+            historyButton.setText(suggestions == 0 ? "查看提醒记录与反馈" : "查看提醒记录与反馈（"+suggestions+" 条建议）");
+            renderedHistoryRevision = app.historyRevision;
+        }
         long age=app.diagnosticsUpdatedAt==0 ? 0 : Math.max(0,(SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt)/1000);
         diagnostics.setText(app.diagnostics+(app.listening && age>=3 ? "\n已 "+age+" 秒未更新采集诊断" : ""));
         handler.postDelayed(this,1000);
@@ -28,10 +41,10 @@ public final class MainActivity extends Activity {
         layout.setOrientation(LinearLayout.VERTICAL); layout.setPadding(32,60,32,48); scroll.addView(layout); setContentView(scroll);
         text(layout,"声境",30);
         text(layout,"重要声音，看得见，也能感受到",18);
-        text(layout,"0.4.0 开发测试版 · 离线识别\n不保存或上传录音。本机保留最近 100 条提醒摘要，可随时清空。不能作为安全报警保障。",16);
+        text(layout,"0.5.0 开发测试版 · 离线识别\n不保存或上传录音。本机保留最近 100 条提醒摘要，可随时清空。不能作为安全报警保障。",16);
         status=text(layout,"",18);
         readiness=text(layout,"",16);
-        button(layout,"查看提醒记录与反馈",()->startActivity(new Intent(this,HistoryActivity.class)));
+        historyButton=button(layout,"查看提醒记录与反馈",()->startActivity(new Intent(this,HistoryActivity.class)));
         button(layout,"开始监听",()-> {
             if(!permissions()) return;
             try { startForegroundService(new Intent(this,ListeningService.class)); }
@@ -48,6 +61,7 @@ public final class MainActivity extends Activity {
             });
         }
         sceneRules=text(layout,"",16);updateSceneRules();
+        button(layout,"预览当前场景的敲门策略",this::previewKnocks);
         Switch enhanced=new Switch(this); enhanced.setText("敲门 / 闹钟增强模式（试验）");layout.addView(enhanced);
         enhanced.setChecked(app.policy.isEnhanced());
         enhanced.setOnCheckedChangeListener((button,on)->{app.policy.setEnhanced(on);app.saveSettings();});
@@ -82,9 +96,32 @@ public final class MainActivity extends Activity {
     }
     private void updateSceneRules() {
         if(sceneRules==null) return;
-        sceneRules.setText(app.policy.getScene()==Policy.Scene.HOME
-            ? "居家：敲门、门铃、闹钟各自至少间隔 15 秒提醒；同一段持续声音只提醒一次。"
-            : "学习：敲门至少间隔 60 秒，使用短振动；门铃和闹钟仍至少间隔 15 秒。同一段持续声音只提醒一次。手表实际振动取决于通知同步设置。");
+        StringBuilder rules = new StringBuilder("两次同类提醒的最短间隔");
+        for (Policy.Kind kind : Policy.Kind.values()) {
+            rules.append("\n").append(kind.title).append("  ").append(app.policy.cooldown(kind)/1000).append(" 秒");
+            if (app.policy.isLessFrequent(app.policy.getScene(), kind)) rules.append("（个人偏好）");
+        }
+        sceneRules.setText(rules.toString());
+    }
+    private void previewKnocks() {
+        Policy preview = new Policy();
+        Policy.Scene scene = app.policy.getScene();
+        Policy.Kind kind = Policy.Kind.KNOCK;
+        preview.setScene(scene);
+        preview.setLessFrequent(scene, kind, app.policy.isLessFrequent(scene, kind));
+        preview.setQuiet(app.policy.isQuiet());
+        preview.setEnabled(kind, app.policy.isEnabled(kind));
+        preview.setEnhanced(app.policy.isEnhanced());
+        int[] seconds = {0, 1, 20, 40, 65, 125};
+        String[] situations = {"首次敲门", "连续敲击", "原来客再敲", "另一位来客", "再次敲门", "再次敲门"};
+        StringBuilder lines = new StringBuilder("示例事件使用固定识别分数 0.80。来客身份由示例设定。\n");
+        for (int i=0; i<seconds.length; i++) {
+            Policy.Decision decision=preview.observe(kind,.80f,seconds[i]*1000L);
+            lines.append("\n").append(seconds[i]).append(" 秒 · ").append(situations[i]).append(" · ")
+                .append(org.shengjing.core.AudioDiagnostics.reasonText(decision.reason));
+        }
+        new android.app.AlertDialog.Builder(this).setTitle(scene.title+" · 离线策略预览")
+            .setMessage(lines.toString()).setPositiveButton("关闭",null).show();
     }
     private String readinessText() {
         StringBuilder text=new StringBuilder("当前场景：").append(app.policy.getScene().title)
@@ -133,9 +170,10 @@ public final class MainActivity extends Activity {
     private TextView text(LinearLayout parent,String value,int size) {
         TextView v=new TextView(this);v.setText(value);v.setTextSize(size);v.setPadding(0,12,0,12);parent.addView(v);return v;
     }
-    private void button(LinearLayout parent,String title,Runnable action) {
+    private Button button(LinearLayout parent,String title,Runnable action) {
         Button b=new Button(this); b.setText(title);b.setAllCaps(false);parent.addView(b);b.setOnClickListener(v->action.run());
+        return b;
     }
-    @Override public void onResume(){super.onResume();handler.post(refresh);}
+    @Override public void onResume(){super.onResume();updateSceneRules();handler.post(refresh);}
     @Override public void onPause(){handler.removeCallbacks(refresh);super.onPause();}
 }

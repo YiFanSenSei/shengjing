@@ -43,7 +43,25 @@ public final class Policy {
     private Scene scene=Scene.HOME;
     public synchronized void setScene(Scene value) { scene=java.util.Objects.requireNonNull(value); }
     public synchronized Scene getScene() { return scene; }
-    public synchronized long cooldown(Kind kind) { return scene==Scene.STUDY && kind==Kind.KNOCK ? 60000 : COOLDOWN_MS; }
+    private final Map<Scene, java.util.EnumSet<Kind>> lessFrequent = new EnumMap<>(Scene.class);
+    public static long defaultCooldown(Scene scene, Kind kind) {
+        return scene == Scene.STUDY && kind == Kind.KNOCK ? 60000 : COOLDOWN_MS;
+    }
+    public static long extendedCooldown(Scene scene, Kind kind) {
+        return Math.max(60000, 2 * defaultCooldown(scene, kind));
+    }
+    public synchronized boolean isLessFrequent(Scene scene, Kind kind) {
+        return lessFrequent.containsKey(scene) && lessFrequent.get(scene).contains(kind);
+    }
+    public synchronized void setLessFrequent(Scene scene, Kind kind, boolean enabled) {
+        if (kind == Kind.ALARM) return;
+        var kinds = lessFrequent.computeIfAbsent(scene, key -> java.util.EnumSet.noneOf(Kind.class));
+        if (enabled) kinds.add(kind);
+        else kinds.remove(kind);
+    }
+    public synchronized long cooldown(Kind kind) {
+        return isLessFrequent(scene, kind) ? extendedCooldown(scene, kind) : defaultCooldown(scene, kind);
+    }
     public static final long SILENCE_GAP_MS=2500, COOLDOWN_MS=15000;
     public static final float THRESHOLD=0.60f;
     public static final float ENHANCED_THRESHOLD=0.40f;

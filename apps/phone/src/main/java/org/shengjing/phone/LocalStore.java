@@ -20,6 +20,11 @@ final class LocalStore {
         try { policy.setScene(Policy.Scene.valueOf(prefs.getString("scene","HOME"))); }
         catch(IllegalArgumentException e) { policy.setScene(Policy.Scene.HOME); }
         for(Policy.Kind kind:Policy.Kind.values()) policy.setEnabled(kind,prefs.getBoolean("enabled_"+kind.name(),true));
+        for (Policy.Scene scene : Policy.Scene.values()) {
+            for (Policy.Kind kind : Policy.Kind.values()) {
+                policy.setLessFrequent(scene, kind, prefs.getBoolean("extended_" + scene + "_" + kind, false));
+            }
+        }
     }
     void saveSettings(Policy policy) {
         SharedPreferences.Editor edit=prefs.edit().putBoolean("enhanced",policy.isEnhanced())
@@ -41,6 +46,13 @@ final class LocalStore {
             }
         } catch(JSONException ignored) { /* Recovery leaves settings intact. */ }
         return new EventHistory(prefs.getLong("sequence",0),entries);
+    }
+    long consideredThrough(Policy.Scene scene, Policy.Kind kind) {
+        return prefs.getLong("considered_" + scene + "_" + kind, 0L);
+    }
+    void recordChoice(Policy.Scene scene, Policy.Kind kind, boolean extended, long through) {
+        prefs.edit().putBoolean("extended_" + scene + "_" + kind, extended)
+            .putLong("considered_" + scene + "_" + kind, through).apply();
     }
     void saveHistory(EventHistory history) {
         JSONArray data=new JSONArray();

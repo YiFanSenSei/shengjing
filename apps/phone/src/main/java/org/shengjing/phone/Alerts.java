@@ -67,7 +67,7 @@ final class Alerts {
         for(String action:new String[]{"ACK","FALSE_ALARM"}) {
             Intent intent=new Intent(c,FeedbackReceiver.class).setAction(action).putExtra("id",entry.id)
                 .setData(android.net.Uri.parse("shengjing://feedback/"+entry.id+"/"+action));
-            b.addAction(new Notification.Action.Builder(null,action.equals("ACK")?"已看到":"这是误报",
+            b.addAction(new Notification.Action.Builder(null,action.equals("ACK")?"已看到":"声音认错了",
                 PendingIntent.getBroadcast(c,0,intent,PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT)).build());
         }
         app.saveHistory();
