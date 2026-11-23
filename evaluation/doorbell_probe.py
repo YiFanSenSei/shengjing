@@ -21,11 +21,11 @@ SOURCES = {
 }
 
 
-def replay(model, audio_dir, living_zip):
+def make_inference(model):
     import tensorflow as tf
 
-    if digest(model) != MODEL_SHA or digest(living_zip, "md5") != DEMAND["DLIVING"]:
-        raise ValueError("Unexpected model or living-room noise archive")
+    if digest(model) != MODEL_SHA:
+        raise ValueError("Unexpected model")
     interpreter = tf.lite.Interpreter(model_path=str(model), num_threads=2)
     interpreter.allocate_tensors()
     inp, = interpreter.get_input_details()
@@ -33,11 +33,6 @@ def replay(model, audio_dir, living_zip):
     window = int(np.prod(inp["shape"]))
     with zipfile.ZipFile(model) as archive:
         labels = archive.read("yamnet_label_list.txt").decode().splitlines()
-    doorbell = labels.index("Doorbell")
-    with zipfile.ZipFile(living_zip) as archive:
-        channel, = [n for n in archive.namelist() if n.lower().endswith("ch01.wav")]
-        noise = read_audio(archive.read(channel))
-
     def infer(signal):
         if len(signal) < window:
             signal = np.pad(signal, (0, window - len(signal)))
@@ -48,25 +43,48 @@ def replay(model, audio_dir, living_zip):
             interpreter.set_tensor(inp["index"], signal[start:start+window].reshape(inp["shape"]))
             interpreter.invoke()
             peaks = np.maximum(peaks, interpreter.get_tensor(out["index"]).ravel())
+        return peaks, len(starts)
+
+    return labels, window, infer
+
+
+def load_ogg(path):
+    channels, rate = sf.read(path, dtype="float32", always_2d=True)
+    factor = math.gcd(rate, 16000)
+    signal = np.clip(resample_poly(channels.mean(axis=1), 16000//factor, rate//factor), -1, 1)
+    return signal, rate, channels.shape[1]
+
+
+def replay(model, audio_dir, living_zip):
+    import tensorflow as tf
+
+    labels, window, scores = make_inference(model)
+    doorbell = labels.index("Doorbell")
+    if digest(living_zip, "md5") != DEMAND["DLIVING"]:
+        raise ValueError("Unexpected living-room noise archive")
+    with zipfile.ZipFile(living_zip) as archive:
+        channel, = [n for n in archive.namelist() if n.lower().endswith("ch01.wav")]
+        noise = read_audio(archive.read(channel))
+
+    def infer(signal):
+        peaks, windows = scores(signal)
         top = int(np.argmax(peaks))
         return {"doorbell_peak": float(peaks[doorbell]), "crossed": bool(peaks[doorbell] >= .60),
-                "top_peak_label": labels[top], "top_peak": float(peaks[top]), "windows": len(starts)}
+                "top_peak_label": labels[top], "top_peak": float(peaks[top]), "windows": windows}
 
     rows = []
     for filename, expected in SOURCES.items():
         path = audio_dir / filename
         if digest(path, "sha1") != expected:
             raise ValueError(f"Unexpected recording: {filename}")
-        channels, rate = sf.read(path, dtype="float32", always_2d=True)
-        factor = math.gcd(rate, 16000)
-        signal = np.clip(resample_poly(channels.mean(axis=1), 16000//factor, rate//factor), -1, 1)
+        signal, rate, num_channels = load_ogg(path)
         offset = int(expected[:8], 16) % (len(noise) - len(signal) + 1)
         segment = noise[offset:offset + len(signal)]
         conditions = {"original": infer(signal), "background": infer(segment)}
         for snr in (20, 10, 0):
             mixture, _ = mix_at_snr(signal, segment, snr)
             conditions[f"{snr}dB"] = infer(mixture)
-        rows.append({"file": filename, "sha1": expected, "rate": rate, "channels": channels.shape[1],
+        rows.append({"file": filename, "sha1": expected, "rate": rate, "channels": num_channels,
                      "noise_offset": offset, "conditions": conditions})
     return {"model_sha256": MODEL_SHA, "threshold": .60, "window": window, "hop": 4000,
             "sample_rate": 16000, "tensorflow": tf.__version__, "decoder": sf.__version__, "rows": rows}

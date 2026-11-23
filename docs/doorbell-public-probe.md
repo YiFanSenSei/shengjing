@@ -26,3 +26,30 @@ python evaluation/doorbell_probe.py <yamnet.tflite> <四个OGG所在目录> <DLI
 ```
 
 [逐文件原始分数、背景偏移及版本](doorbell-public-probe.json)
+
+## 相近声音标签与误报对照（11 月 23 日）
+
+继续使用相同的四段原始门铃。负例取 ESC-50 七类的全部片段，每类 40 条，包含闹钟、时钟滴答、教堂钟、敲门、木门吱呀、警笛和汽车喇叭；另加一段真实电话来电铃，共 281 条。电话音频由 Work With Sounds / Technical Museum of Slovenia 提供，许可为 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，本地解码、混合声道并重采样到 16 kHz。[Iskra Eta 80 电话铃录音](https://commons.wikimedia.org/wiki/File:WWS_AutomatictelephoneIskraEta80ringing.ogg)
+
+每个窗口取所列模型标签的最大分数，片段中只要有窗口越过或达到阈值就计一次。下表只统计这轮原音。负例按数据集标签判断，数量按片段计。
+
+| 门铃判定标签 | 阈值 | 门铃命中／4 | 干扰片段触发／281 |
+|---|---:|---:|---:|
+| Doorbell | 0.60 | 2 | 0 |
+| Doorbell 或 Ding-dong | 0.60 | 2 | 0 |
+| 再加入 Chime | 0.60 | 2 | 0 |
+| Doorbell | 0.25 | 3 | 2 |
+| Doorbell 或 Ding-dong | 0.25 | 4 | 2 |
+| 再加入 Chime | 0.25 | 4 | 2 |
+
+0.25 是看过漏检分数后的探索值。经典双音门铃的 Ding-dong 峰值为 0.262，计入该标签后刚好找回。旧式响铃的 Doorbell 峰值也是 0.262。低阈值下，一段闹钟和一段教堂钟同样触发。真实电话铃的 Telephone 峰值为 0.984，而老式门铃的 Telephone 峰值为 0.996；用电话高分直接排除门铃，会把这个真门铃一并排除。
+
+手机仍沿用 0.60。下一轮用不同设备录制的门铃、闹钟与电话铃验证候选规则，复测客厅背景中的表现，再决定是否提供实验选项。本次 4/4 的分母是用于探索参数的四段已知样本；误触发数不能换算成每小时打扰次数。
+
+使用上一节环境，把电话音频以 `WWS_AutomatictelephoneIskraEta80ringing.ogg` 放到下载目录，与 ESC-50 压缩包和 `commons-doorbells/` 并列。在仓库根目录执行：
+
+```sh
+python evaluation/doorbell_labels.py <yamnet.tflite> <下载目录> <输出JSON路径>
+```
+
+[候选规则、逐条命中和误触发清单](doorbell-labels.json)

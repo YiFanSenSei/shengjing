@@ -1,0 +1,169 @@
+{
+  "model_sha256": "10c95ea3eb9a7bb4cb8bddf6feb023250381008177ac162ce169694d05c317de",
+  "window": 15600,
+  "hop": 4000,
+  "positive_peaks": {
+    "Doorbell-classic-dingdong.ogg": {
+      "Doorbell": 0.19921875,
+      "Ding-dong": 0.26171875,
+      "Chime": 0.109375,
+      "Telephone": 0.01953125,
+      "Telephone bell ringing": 0.01171875,
+      "Music": 0.890625
+    },
+    "Doorbell-cheap-dingdong.ogg": {
+      "Doorbell": 0.80078125,
+      "Ding-dong": 0.5859375,
+      "Chime": 0.03125,
+      "Telephone": 0.01953125,
+      "Telephone bell ringing": 0.00390625,
+      "Music": 0.73828125
+    },
+    "Doorbell-old-tring.ogg": {
+      "Doorbell": 0.26171875,
+      "Ding-dong": 0.26171875,
+      "Chime": 0.03125,
+      "Telephone": 0.99609375,
+      "Telephone bell ringing": 0.98046875,
+      "Music": 0.05859375
+    },
+    "Electronic_doorbell.ogg": {
+      "Doorbell": 0.98828125,
+      "Ding-dong": 0.91796875,
+      "Chime": 0.01953125,
+      "Telephone": 0.95703125,
+      "Telephone bell ringing": 0.66796875,
+      "Music": 0.19921875
+    }
+  },
+  "telephone_peaks": {
+    "Doorbell": 0.1484375,
+    "Ding-dong": 0.05859375,
+    "Chime": 0.00390625,
+    "Telephone": 0.984375,
+    "Telephone bell ringing": 0.66796875,
+    "Music": 0.05859375
+  },
+  "negative_counts": {
+    "telephone_ringing": 1,
+    "door_wood_knock": 40,
+    "church_bells": 40,
+    "clock_alarm": 40,
+    "car_horn": 40,
+    "clock_tick": 40,
+    "siren": 40,
+    "door_wood_creaks": 40
+  },
+  "rules": {
+    "baseline": {
+      "labels": [
+        "Doorbell"
+      ],
+      "threshold": 0.6,
+      "positive_hits": [
+        "Doorbell-cheap-dingdong.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [],
+      "max_negative_score": 0.33203125
+    },
+    "plus_dingdong": {
+      "labels": [
+        "Doorbell",
+        "Ding-dong"
+      ],
+      "threshold": 0.6,
+      "positive_hits": [
+        "Doorbell-cheap-dingdong.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [],
+      "max_negative_score": 0.33203125
+    },
+    "plus_chime": {
+      "labels": [
+        "Doorbell",
+        "Ding-dong",
+        "Chime"
+      ],
+      "threshold": 0.6,
+      "positive_hits": [
+        "Doorbell-cheap-dingdong.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [],
+      "max_negative_score": 0.33203125
+    },
+    "baseline_exploratory025": {
+      "labels": [
+        "Doorbell"
+      ],
+      "threshold": 0.25,
+      "positive_hits": [
+        "Doorbell-cheap-dingdong.ogg",
+        "Doorbell-old-tring.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [
+        {
+          "category": "clock_alarm",
+          "file": "1-96890-A-37.wav"
+        },
+        {
+          "category": "church_bells",
+          "file": "5-204741-A-46.wav"
+        }
+      ],
+      "max_negative_score": 0.33203125
+    },
+    "plus_dingdong_exploratory025": {
+      "labels": [
+        "Doorbell",
+        "Ding-dong"
+      ],
+      "threshold": 0.25,
+      "positive_hits": [
+        "Doorbell-classic-dingdong.ogg",
+        "Doorbell-cheap-dingdong.ogg",
+        "Doorbell-old-tring.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [
+        {
+          "category": "clock_alarm",
+          "file": "1-96890-A-37.wav"
+        },
+        {
+          "category": "church_bells",
+          "file": "5-204741-A-46.wav"
+        }
+      ],
+      "max_negative_score": 0.33203125
+    },
+    "plus_chime_exploratory025": {
+      "labels": [
+        "Doorbell",
+        "Ding-dong",
+        "Chime"
+      ],
+      "threshold": 0.25,
+      "positive_hits": [
+        "Doorbell-classic-dingdong.ogg",
+        "Doorbell-cheap-dingdong.ogg",
+        "Doorbell-old-tring.ogg",
+        "Electronic_doorbell.ogg"
+      ],
+      "negative_triggers": [
+        {
+          "category": "clock_alarm",
+          "file": "1-96890-A-37.wav"
+        },
+        {
+          "category": "church_bells",
+          "file": "5-204741-A-46.wav"
+        }
+      ],
+      "max_negative_score": 0.33203125
+    }
+  }
+}
