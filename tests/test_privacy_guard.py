@@ -6,31 +6,36 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
-from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('guard', Path(__file__).parents[1] / 'scripts' / 'privacy_guard.py')
 guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
 
 class GuardTests(unittest.TestCase):
-    def test_reviewed_author_is_limited_to_one_commit_and_field(self):
-        email = b'member' + b'@private.example.net'
-        oid = 'a' * 40
-        with patch.object(guard, 'REVIEWED_AUTHOR_EMAIL', {oid: guard.hashlib.sha256(email).hexdigest()}):
-            self.assertEqual([], guard.author_findings(oid, b'Member', email))
-            self.assertIn('email-address', guard.author_findings('b' * 40, b'Member', email))
-            self.assertIn('email-address', guard.author_findings(oid, b'Member', b'other' + email))
-            self.assertIn('email-address', guard.author_findings(oid, email, email))
-            self.assertIn('email-address', guard.content_findings(email))
-
-    def test_author_exception_does_not_allow_content_or_other_authors(self):
-        address = ('owner'+'@'+'private.example.net').encode()
-        digest = guard.hashlib.sha256(address).hexdigest()
-        with patch.object(guard, 'AUTHORIZED_AUTHOR_EMAIL_SHA256', {digest}):
-            self.assertEqual([], guard.content_findings(address, commit_author=True))
-            self.assertIn('email-address', guard.content_findings(address))
-            self.assertIn('email-address', guard.content_findings(b'other'+address, commit_author=True))
-            self.assertIn('github-token', guard.content_findings(address+b' ghp_'+b'A'*36, commit_author=True))
+    def test_git_identity_addresses_and_message_content(self):
+        address = 'member' + '@private.example.net'
+        trailer = 'Co-authored-by: Teammate <' + address + '>'
+        secret = 'ghp_' + 'A' * 36
+        with tempfile.TemporaryDirectory() as tmp, contextlib.chdir(tmp):
+            guard.git('init')
+            guard.git('config', 'user.name', 'TestUser')
+            guard.git('config', 'user.email', address)
+            guard.git('config', 'commit.gpgsign', 'false')
+            def commit(message):
+                guard.git('-c', 'core.hooksPath=/dev/null', 'commit', '--allow-empty', '-m', message)
+                return guard.commit_findings('HEAD')
+            self.assertEqual([], commit('test\n\n' + trailer + '\n' + trailer.lower()))
+            self.assertIn('email-address', commit('Please contact ' + address))
+            self.assertIn('email-address', commit('test\n\n' + trailer + '\n\nMore text\n\n' + trailer))
+            self.assertIn('email-address', commit('test\n\nReviewed-by: Teammate <' + address + '>'))
+            self.assertIn('email-address', commit('test\n\nCo-authored-by: ' + address + ' <' + address + '>'))
+            self.assertIn('github-token', commit('test\n\nCo-authored-by: Member <' + secret + '@example.com>'))
+            guard.git('config', 'user.email', secret + '@example.com')
+            self.assertIn('github-token', commit('test'))
+            Path('note.txt').write_text(trailer, encoding='utf-8')
+            guard.git('add', 'note.txt')
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(1, guard.scan(staged=True))
 
     def test_sensitive_shapes(self):
         for value in ['ghp_' + 'A' * 36, 'sk-' + 'b' * 32, '138' + '0' * 8, 'person' + '@' + 'real-domain.cn']:

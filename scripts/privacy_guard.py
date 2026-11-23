@@ -1,6 +1,5 @@
 """Conservative project guard. No third-party dependencies; never prints matches."""
 import argparse
-import hashlib
 from pathlib import PurePosixPath
 import re
 import subprocess
@@ -32,20 +31,16 @@ PATTERNS = {
     'assigned-secret': r'''(?i)(?:api[_-]?key|access[_-]?token|secret|password)\s*[=:]\s*["'](?!REPLACE_ME|YOUR_|EXAMPLE_|PLACEHOLDER)[A-Za-z0-9_+/=-]{12,}["']''',
 }
 EMAIL = re.compile(r'[A-Za-z0-9_.+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})')
-# Owner explicitly authorized the default GitHub author email for merges.
-# Digest avoids duplicating the address in source; this is not anonymization.
-AUTHORIZED_AUTHOR_EMAIL_SHA256 = {'d3dcd7f778f2194bf585ce8be6fb4ec6856e180fa48f980c9e805c191f2c2e67'}
-# The contributor consented to the author address on the squash commit for PR 12.
-REVIEWED_AUTHOR_EMAIL = {
-    'edf6c62039322aa09b3866267a59bc9b770f3723': '21bb4d087f90ad49f66cf0e07b86b84c55910e352e1162666f32c4dc90478af5',
-}
+COAUTHOR = re.compile(rb'^(Co-authored-by:[ \t]+[^<>\r\n]+[ \t]+)<[^<>\s@]+@[^<>\s@]+>[ \t]*\r?$',
+                      re.IGNORECASE | re.MULTILINE)
 
 def git(*args):
     return subprocess.check_output(['git', *args], stderr=subprocess.PIPE)
 
-def content_findings(data, *, commit_author=False):
+def content_findings(data, *, email_scan=None):
     try:
         text = data.decode('utf-8-sig')
+        email_text = text if email_scan is None else email_scan.decode('utf-8-sig')
     except UnicodeDecodeError:
         return ['non-utf8-or-binary']
     if '\0' in text:
@@ -53,10 +48,9 @@ def content_findings(data, *, commit_author=False):
     found = [name for name, regex in PATTERNS.items() if re.search(regex, text)]
     # GitHub creates squash commits with its public platform committer address.
     # Allow that exact address, never all mailboxes on github.com.
-    if any(not (commit_author and hashlib.sha256(m.group(0).lower().encode()).hexdigest() in AUTHORIZED_AUTHOR_EMAIL_SHA256) and
-           m.group(0).lower() != 'noreply@github.com' and
+    if any(m.group(0).lower() != 'noreply@github.com' and
            m.group(1).lower() not in {'example.com', 'example.org', 'example.invalid', 'users.noreply.github.com'}
-           for m in EMAIL.finditer(text)):
+           for m in EMAIL.finditer(email_text)):
         found.append('email-address')
     return found
 
@@ -91,12 +85,7 @@ def scan(staged=False, history=False, ref='HEAD'):
     seen = set()
     for revision in refs:
         if not staged:
-            # Check messages AND author/committer identity, without printing either.
-            metadata = git('show', '-s', '--format=%B%n%cn <%ce>', revision)
-            for reason in content_findings(metadata):
-                issues.add(('commit-metadata', reason))
-            oid, name, email = git('show', '-s', '--format=%H%x00%an%x00%ae', revision).rstrip(b'\n').split(b'\0')
-            for reason in author_findings(oid.decode('ascii'), name, email):
+            for reason in commit_findings(revision):
                 issues.add(('commit-metadata', reason))
         for mode, oid, path in entries(staged, revision):
             if (mode, oid, path) in seen:
@@ -123,13 +112,15 @@ def scan(staged=False, history=False, ref='HEAD'):
     print('Privacy guard: FAILED (review locally; values and paths withheld).' if issues else 'Privacy guard: PASS (heuristic checks only).')
     return 1 if issues else 0
 
-def author_findings(oid, name, email):
-    if REVIEWED_AUTHOR_EMAIL.get(oid) == hashlib.sha256(email.lower()).hexdigest():
-        # Keep every other check on both fields, including addresses in the name.
-        return content_findings(name, commit_author=True) + [
-            reason for reason in content_findings(email) if reason != 'email-address'
-        ]
-    return content_findings(name + b' <' + email + b'>', commit_author=True)
+def commit_findings(revision):
+    fields = '%an <%ae>%n%cn <%ce>%x00%an%n%cn%x00%B%x00%(trailers)'
+    identities, names, message, trailers = git('show', '-s', '--format=' + fields, revision).split(b'\0')
+    email_message = message.rstrip(b'\r\n')
+    footer = trailers.rstrip(b'\r\n')
+    # Only remove addresses from the final trailer block that Git itself parsed.
+    if footer and email_message.endswith(b'\n' + footer):
+        email_message = email_message[:-len(footer)] + COAUTHOR.sub(rb'\1<>', footer)
+    return content_findings(identities + b'\n' + message, email_scan=names + b'\n' + email_message)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
