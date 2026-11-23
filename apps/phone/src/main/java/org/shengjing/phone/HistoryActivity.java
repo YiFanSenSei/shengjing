@@ -17,21 +17,16 @@ import java.util.Locale;
 import org.shengjing.core.EventHistory;
 import org.shengjing.core.Policy;
 
-public final class HistoryActivity extends Activity {
-    private App app;
+public final class HistoryActivity extends PhoneScreen {
     private LinearLayout records;
     private long shownRevision=-1;
-    private final Handler handler=new Handler(Looper.getMainLooper());
-    private final Runnable refresh=new Runnable() { public void run() {
+    @Override void refresh(){
         if(shownRevision!=app.historyRevision) render();
-        handler.postDelayed(this,1000);
-    }};
+    }
     @Override public void onCreate(Bundle state) {
-        super.onCreate(state);app=(App)getApplication();
-        ScrollView scroll=new ScrollView(this);LinearLayout layout=new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);layout.setPadding(32,60,32,48);scroll.addView(layout);setContentView(scroll);
-        text(layout,"提醒记录",26);
-        text(layout,"仅保存在这台手机，最多 100 条；不含录音、转写或位置。这里只记录达到提醒条件的事件，不是完整声音日志。\n“已请求通知”不代表手机已振动或手表已收到。反馈暂不自动训练模型。",16);
+        super.onCreate(state);
+        heading(layout,"提醒记录",28);
+        text(layout,"最近 100 条提醒保存在本机。可在记录上确认声音或反馈提醒太频繁。",17);
         button(layout,"返回监听页面",this::finish);
         button(layout,"清空全部提醒记录",()->new AlertDialog.Builder(this).setTitle("清空本机提醒记录？")
             .setMessage("删除全部记录和反馈，同时撤回本应用对应的提醒通知；设置和监听状态保留。此操作无法撤销。")
@@ -45,20 +40,22 @@ public final class HistoryActivity extends Activity {
         DateFormat dates=DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.MEDIUM);
         for(int i=entries.size()-1;i>=0;i--) {
             EventHistory.Entry e=entries.get(i);
-            text(records,(e.simulated?"[模拟] ":"[识别] ")+e.kind.title+" · "+e.scene.title,20);
-            text(records,dates.format(new Date(e.time))+"\n识别分数 "+String.format(Locale.ROOT,"%.3f",e.score)+"（不是准确率）\n"+
+            LinearLayout item=card(records);
+            heading(item,(e.simulated?"模拟 · ":"识别 · ")+e.kind.title+" · "+e.scene.title,20);
+            text(item,dates.format(new Date(e.time))+"\n"+
                 deliveryText(e.delivery)+" · "+feedbackText(e.feedback),16);
+            if(!e.simulated)text(item,"模型分数 "+String.format(Locale.ROOT,"%.3f",e.score),16);
             if(e.feedback==EventHistory.Feedback.PENDING) {
-                button(records,"已看到",()->feedback(e.id,"ACK"));
-                button(records,"声音认错了",()->feedback(e.id,"FALSE_ALARM"));
+                button(item,"已看到",()->feedback(e.id,"ACK"));
+                button(item,"声音认错了",()->feedback(e.id,"FALSE_ALARM"));
             }
             if (!e.simulated && e.delivery == EventHistory.Delivery.REQUESTED &&
                 (e.feedback == EventHistory.Feedback.PENDING || e.feedback == EventHistory.Feedback.ACK)) {
-                button(records,"声音认对了，但提醒太频繁",()->feedback(e.id,"TOO_FREQUENT"));
+                button(item,"声音认对了，但提醒太频繁",()->feedback(e.id,"TOO_FREQUENT"));
             }
         }
     }
-    private static String deliveryText(EventHistory.Delivery value) {
+    static String deliveryText(EventHistory.Delivery value) {
         switch(value) { case BLOCKED:return "通知被系统设置阻止";case FAILED:return "通知发送失败";default:return "已请求通知"; }
     }
     static String feedbackText(EventHistory.Feedback value) {
@@ -96,12 +93,4 @@ public final class HistoryActivity extends Activity {
     private void feedback(long id,String action) {
         sendBroadcast(new Intent(this,FeedbackReceiver.class).setAction(action).putExtra("id",id));
     }
-    private void text(LinearLayout parent,String content,int size) {
-        TextView view=new TextView(this);view.setText(content);view.setTextSize(size);view.setPadding(0,12,0,12);parent.addView(view);
-    }
-    private void button(LinearLayout parent,String label,Runnable action) {
-        Button view=new Button(this);view.setText(label);view.setAllCaps(false);parent.addView(view);view.setOnClickListener(v->action.run());
-    }
-    @Override public void onResume() { super.onResume();handler.post(refresh); }
-    @Override public void onPause() { handler.removeCallbacks(refresh);super.onPause(); }
 }
