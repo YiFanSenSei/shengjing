@@ -35,6 +35,10 @@ EMAIL = re.compile(r'[A-Za-z0-9_.+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})')
 # Owner explicitly authorized the default GitHub author email for merges.
 # Digest avoids duplicating the address in source; this is not anonymization.
 AUTHORIZED_AUTHOR_EMAIL_SHA256 = {'d3dcd7f778f2194bf585ce8be6fb4ec6856e180fa48f980c9e805c191f2c2e67'}
+# The contributor consented to the author address on the squash commit for PR 12.
+REVIEWED_AUTHOR_EMAIL = {
+    'edf6c62039322aa09b3866267a59bc9b770f3723': '21bb4d087f90ad49f66cf0e07b86b84c55910e352e1162666f32c4dc90478af5',
+}
 
 def git(*args):
     return subprocess.check_output(['git', *args], stderr=subprocess.PIPE)
@@ -91,8 +95,8 @@ def scan(staged=False, history=False, ref='HEAD'):
             metadata = git('show', '-s', '--format=%B%n%cn <%ce>', revision)
             for reason in content_findings(metadata):
                 issues.add(('commit-metadata', reason))
-            author = git('show', '-s', '--format=%an <%ae>', revision)
-            for reason in content_findings(author, commit_author=True):
+            oid, name, email = git('show', '-s', '--format=%H%x00%an%x00%ae', revision).rstrip(b'\n').split(b'\0')
+            for reason in author_findings(oid.decode('ascii'), name, email):
                 issues.add(('commit-metadata', reason))
         for mode, oid, path in entries(staged, revision):
             if (mode, oid, path) in seen:
@@ -118,6 +122,14 @@ def scan(staged=False, history=False, ref='HEAD'):
         print(f'BLOCKED: {kind}: {reason}')
     print('Privacy guard: FAILED (review locally; values and paths withheld).' if issues else 'Privacy guard: PASS (heuristic checks only).')
     return 1 if issues else 0
+
+def author_findings(oid, name, email):
+    if REVIEWED_AUTHOR_EMAIL.get(oid) == hashlib.sha256(email.lower()).hexdigest():
+        # Keep every other check on both fields, including addresses in the name.
+        return content_findings(name, commit_author=True) + [
+            reason for reason in content_findings(email) if reason != 'email-address'
+        ]
+    return content_findings(name + b' <' + email + b'>', commit_author=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
