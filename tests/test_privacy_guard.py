@@ -38,6 +38,12 @@ class GuardTests(unittest.TestCase):
         for path in ['recordings/sample.wav', '.env', 'key.pem', 'survey.xlsx', 'image.png', 'local.properties']:
             self.assertTrue(guard.path_findings(path))
 
+    def test_reviewed_asset_is_exact_path_only(self):
+        self.assertTrue(guard.REVIEWED_ASSETS)
+        for path in guard.REVIEWED_ASSETS:
+            self.assertEqual([], guard.path_findings(path))
+        self.assertTrue(guard.path_findings('docs/questionnaire/other.pdf'))
+
     def test_staged_content_and_deleted_history(self):
         old = os.getcwd()
         with tempfile.TemporaryDirectory() as tmp:

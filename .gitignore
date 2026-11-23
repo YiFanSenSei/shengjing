@@ -53,3 +53,7 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Reviewed public assets: blank questionnaire form, no personal data.
+!docs/questionnaire/
+!docs/questionnaire/*.pdf

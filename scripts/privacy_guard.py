@@ -14,6 +14,13 @@ ALLOWED_SUFFIXES = {
     '.pro', '.js', '.ts', '.tsx', '.jsx', '.css', '.html', '.sql', '.proto',
 }
 ALLOWED_NAMES = {'.gitignore', '.gitattributes', 'codeowners', 'pre-commit', 'pre-push', 'license', '.env.example'}
+# Public, reviewed binary assets (path -> max bytes). The blank questionnaire
+# form holds no responses, names, or contact details; it is the only approved
+# exception to the binary and size rules. New entries need an explicit review
+# and a policy PR, never a wildcard or a directory prefix.
+REVIEWED_ASSETS = {
+    'docs/questionnaire/声境_调查问卷_A4竖版_4K_300DPI.pdf': 1024 * 1024,
+}
 PATTERNS = {
     'private-key': r'-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----',
     'github-token': r'\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{30,})\b',
@@ -56,6 +63,8 @@ def path_findings(path):
         found.append('restricted-data-directory')
     if (p.name.startswith('.env') and p.name != '.env.example') or p.name == 'local.properties':
         found.append('local-secret-config')
+    if path in REVIEWED_ASSETS:
+        return found
     if p.suffix not in ALLOWED_SUFFIXES and p.name not in ALLOWED_NAMES:
         found.append('unapproved-file-type')
     return found
@@ -95,6 +104,11 @@ def scan(staged=False, history=False, ref='HEAD'):
                 issues.add(('file', 'symlink-or-submodule'))
                 continue
             size = int(git('cat-file', '-s', oid))
+            reviewed_limit = REVIEWED_ASSETS.get(path)
+            if reviewed_limit is not None:
+                if size > reviewed_limit:
+                    issues.add(('file', 'reviewed-asset-over-limit'))
+                continue
             if size > MAX_SIZE:
                 issues.add(('file', 'over-1MiB'))
                 continue
