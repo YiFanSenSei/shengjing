@@ -13,6 +13,16 @@ guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
 
 class GuardTests(unittest.TestCase):
+    def test_reviewed_author_is_limited_to_one_commit_and_field(self):
+        email = b'member' + b'@private.example.net'
+        oid = 'a' * 40
+        with patch.object(guard, 'REVIEWED_AUTHOR_EMAIL', {oid: guard.hashlib.sha256(email).hexdigest()}):
+            self.assertEqual([], guard.author_findings(oid, b'Member', email))
+            self.assertIn('email-address', guard.author_findings('b' * 40, b'Member', email))
+            self.assertIn('email-address', guard.author_findings(oid, b'Member', b'other' + email))
+            self.assertIn('email-address', guard.author_findings(oid, email, email))
+            self.assertIn('email-address', guard.content_findings(email))
+
     def test_author_exception_does_not_allow_content_or_other_authors(self):
         address = ('owner'+'@'+'private.example.net').encode()
         digest = guard.hashlib.sha256(address).hexdigest()
