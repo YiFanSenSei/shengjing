@@ -92,6 +92,13 @@ abstract class PhoneScreen extends Activity {
     }
     void show(TextView view,String value){if(!value.contentEquals(view.getText()))view.setText(value);}
     void go(Class<? extends Activity> screen){startActivity(new Intent(this,screen));}
+    void toggleListening(){
+        if(app.listening){startService(new Intent(this,ListeningService.class).setAction("STOP"));return;}
+        if(!microphone() || !notifications()){go(SetupActivity.class);return;}
+        try{startForegroundService(new Intent(this,ListeningService.class));}
+        catch(RuntimeException e){app.status="无法启动监听，请检查权限后重试";}
+        refresh();
+    }
     boolean microphone(){return checkSelfPermission(Manifest.permission.RECORD_AUDIO)==PackageManager.PERMISSION_GRANTED;}
     boolean notifications(){return getSystemService(android.app.NotificationManager.class).areNotificationsEnabled()
         && (Build.VERSION.SDK_INT<33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)==PackageManager.PERMISSION_GRANTED);}

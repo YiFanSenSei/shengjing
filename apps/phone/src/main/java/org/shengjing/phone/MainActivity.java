@@ -11,7 +11,7 @@ import org.shengjing.core.Policy;
 
 public final class MainActivity extends PhoneScreen {
     private TextView status, mode, latest, watch;
-    private Button listen, history, setup, recovery;
+    private Button listen, history, setup, recovery, quiet, detail;
     private long displayedRevision=-1;
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
@@ -20,29 +20,27 @@ public final class MainActivity extends PhoneScreen {
         status=heading(monitor,"",26);
         mode=text(monitor,"",18);
         listen=button(monitor,"开始监听",this::toggleListening);primary(listen);
+        quiet=button(monitor,"暂停真实提醒",()->{app.setQuiet(!app.policy.isQuiet());refresh();});
         recovery=button(monitor,"检查设备设置",()->go(SetupActivity.class));
         LinearLayout recent=card();
         heading(recent,"最近提醒",22);
         latest=text(recent,"",19);
+        detail=button(recent,"查看这条提醒",()->startActivity(new Intent(this,HistoryActivity.class).putExtra("eventId",app.latestId)));
         history=button(recent,"查看提醒记录与反馈",()->go(HistoryActivity.class));
         LinearLayout devices=card();
         heading(devices,"手机与手表",22);
         watch=text(devices,"",17);
         setup=button(devices,"设置权限与手表",()->go(SetupActivity.class));
         button(layout,"场景与提醒设置",()->go(OptionsActivity.class));
+        button(layout,"现场演示与锁屏核对",()->go(FieldDemoActivity.class));
         button(layout,"诊断与测试工具",()->go(DiagnosticsActivity.class));
         text(layout,"声音在本机处理，不保存录音。声境不能作为安全报警保障。",16);
-    }
-    private void toggleListening(){
-        if(app.listening){startService(new Intent(this,ListeningService.class).setAction("STOP"));return;}
-        if(!microphone() || !notifications()){go(SetupActivity.class);return;}
-        try{startForegroundService(new Intent(this,ListeningService.class));}
-        catch(RuntimeException e){app.status="无法启动监听，请检查权限后重试";}
-        refresh();
     }
     @Override void refresh(){
         show(status,app.status.startsWith("正在本机监听：")?"正在监听":app.status);
         show(listen,app.listening?"停止监听":"开始监听");
+        quiet.setVisibility(app.listening || app.policy.isQuiet()?Button.VISIBLE:Button.GONE);
+        show(quiet,app.policy.isQuiet()?"恢复真实提醒":"暂停真实提醒");
         recovery.setVisibility(app.sessionReport.state.needsAttention()?Button.VISIBLE:Button.GONE);
         int enabled=0,available=0;
         for(Policy.Kind k:Policy.Kind.values()){
@@ -64,6 +62,7 @@ public final class MainActivity extends PhoneScreen {
         if(displayedRevision==app.historyRevision)return;
         displayedRevision=app.historyRevision;
         EventHistory.Entry e=app.history.find(app.latestId);
+        detail.setVisibility(e==null?Button.GONE:Button.VISIBLE);
         show(latest,e==null?"还没有提醒记录":(e.simulated?"模拟 · ":"识别 · ")+e.kind.title+"\n"+date(e.time)+" · "+
             HistoryActivity.deliveryText(e.delivery)+" · "+HistoryActivity.feedbackText(e.feedback));
         int count=0;
