@@ -5,10 +5,13 @@ import android.os.*;
 import android.widget.*;
 import org.shengjing.core.Policy;
 public final class DiagnosticsActivity extends PhoneScreen {
-    private TextView diagnostics, delayed, access;
+    private TextView diagnostics, delayed, access, sessionSummary;
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
         heading(layout,"诊断与测试工具",28);
+        LinearLayout session=card();
+        heading(session,"最近一次监听",22);
+        sessionSummary=text(session,"",18);
         diagnostics=text(layout,"",16);
         access=text(layout,"",16);
         delayed=text(layout,"",16);
@@ -31,10 +34,11 @@ public final class DiagnosticsActivity extends PhoneScreen {
         go(SetupActivity.class);return false;
     }
     @Override void refresh(){
+        show(sessionSummary,app.sessionReport.summary(SystemClock.elapsedRealtime()));
         long age=(SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt)/1000;
         show(diagnostics,app.status+"\n"+app.diagnostics+(app.listening && age>=3?"\n采集诊断已 "+age+" 秒未更新":""));
         show(delayed,app.delayedTest.status+"\n"+app.lastFeedback);
-        StringBuilder report=new StringBuilder("版本 0.6.0");
+        StringBuilder report=new StringBuilder("版本 0.8.0");
         for(Policy.Kind k:Policy.Kind.values()){
             String channel=Alerts.channel(k,app.policy.getScene());
             android.app.NotificationChannel config=getSystemService(android.app.NotificationManager.class).getNotificationChannel(channel);

@@ -53,7 +53,15 @@ final class LocalStore {
     boolean asked(String permission){return prefs.getBoolean("asked_"+permission,false);}
     void markAsked(String permission){prefs.edit().putBoolean("asked_"+permission,true).apply();}
     long watchConfirmedAt(){return prefs.getLong("watch_confirmed_at",0);}
-    void confirmWatch(long time){prefs.edit().putLong("watch_confirmed_at",time).apply();}
+    long watchConfirmedAt(Policy.Kind kind){
+        // Earlier versions could only confirm a knock.
+        return prefs.getLong("watch_confirmed_"+kind.name(),kind==Policy.Kind.KNOCK?watchConfirmedAt():0);
+    }
+    void confirmWatch(Policy.Kind kind,long time){
+        SharedPreferences.Editor edit=prefs.edit();
+        if(!prefs.contains("watch_confirmed_KNOCK"))edit.putLong("watch_confirmed_KNOCK",watchConfirmedAt());
+        edit.putLong("watch_confirmed_"+kind.name(),time).putLong("watch_confirmed_at",time).apply();
+    }
     void recordChoice(Policy.Scene scene, Policy.Kind kind, boolean extended, long through) {
         prefs.edit().putBoolean("extended_" + scene + "_" + kind, extended)
             .putLong("considered_" + scene + "_" + kind, through).apply();

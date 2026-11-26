@@ -100,6 +100,12 @@ abstract class PhoneScreen extends Activity {
             :new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName()));
         try{startActivity(intent);}catch(ActivityNotFoundException e){Toast.makeText(this,"请在系统设置中打开声境的应用详情",Toast.LENGTH_LONG).show();}
     }
+    void channelSettings(String channel){
+        Intent intent=new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName())
+            .putExtra(Settings.EXTRA_CHANNEL_ID,channel);
+        try{startActivity(intent);}catch(ActivityNotFoundException e){systemSettings(true);}
+    }
     void refresh(){}
     @Override protected void onResume(){super.onResume();tick.run();}
     @Override protected void onPause(){handler.removeCallbacks(tick);super.onPause();}

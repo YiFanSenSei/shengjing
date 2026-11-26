@@ -60,9 +60,12 @@ final class Alerts {
             }
         }
         if(!allowed) { app.lastEvent+=" · 通知被系统设置阻止，请检查权限和类别通知";app.saveHistory();return; }
+        Intent detail=new Intent(c,HistoryActivity.class).putExtra("eventId",entry.id)
+            .setData(android.net.Uri.parse("shengjing://event/"+entry.id));
         Notification.Builder b=new Notification.Builder(c,channel)
             .setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle((alert.simulated?"测试提醒：":"检测到可能的")+alert.kind.title)
-            .setContentText(alert.scene.title+"场景 · 请结合实际环境确认").setContentIntent(open(c)).setAutoCancel(true)
+            .setContentText(alert.scene.title+"场景 · 点此查看这条提醒")
+            .setContentIntent(PendingIntent.getActivity(c,0,detail,PendingIntent.FLAG_IMMUTABLE)).setAutoCancel(true)
             .setVisibility(Notification.VISIBILITY_PRIVATE).setOnlyAlertOnce(true);
         for(String action:new String[]{"ACK","FALSE_ALARM"}) {
             Intent intent=new Intent(c,FeedbackReceiver.class).setAction(action).putExtra("id",entry.id)
