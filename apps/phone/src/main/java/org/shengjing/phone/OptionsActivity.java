@@ -6,6 +6,8 @@ import android.widget.*;
 import org.shengjing.core.Policy;
 public final class OptionsActivity extends PhoneScreen {
     private TextView sceneRules;
+    private Switch quiet;
+    @Override void refresh(){quiet.setChecked(app.policy.isQuiet());}
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
         heading(layout,"场景与提醒设置",28);
@@ -24,9 +26,9 @@ public final class OptionsActivity extends PhoneScreen {
         enhanced.setChecked(app.policy.isEnhanced());
         enhanced.setOnCheckedChangeListener((button,on)->{app.policy.setEnhanced(on);app.saveSettings();});
         text(layout,"增强模式更容易触发提醒，也可能增加误报。场景、增强模式、关注类别和暂停状态会保存在本机。门铃保持原阈值。",14);
-        Switch quiet=new Switch(this); quiet.setText("暂停真实声音提醒（监听仍继续）"); layout.addView(quiet);
+        quiet=new Switch(this); quiet.setText("暂停真实声音提醒（监听仍继续）"); layout.addView(quiet);
         quiet.setChecked(app.policy.isQuiet());
-        quiet.setOnCheckedChangeListener((b,on)->{app.policy.setQuiet(on);app.saveSettings();});
+        quiet.setOnCheckedChangeListener((b,on)->app.setQuiet(on));
         for(Policy.Kind k:Policy.Kind.values()) {
             Switch enabled=new Switch(this); enabled.setText("关注："+k.title); enabled.setChecked(app.policy.isEnabled(k)); layout.addView(enabled);
             enabled.setOnCheckedChangeListener((b,on)->{app.policy.setEnabled(k,on);app.saveSettings();});

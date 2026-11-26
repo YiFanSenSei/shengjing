@@ -38,7 +38,7 @@ public final class DiagnosticsActivity extends PhoneScreen {
         long age=(SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt)/1000;
         show(diagnostics,app.status+"\n"+app.diagnostics+(app.listening && age>=3?"\n采集诊断已 "+age+" 秒未更新":""));
         show(delayed,app.delayedTest.status+"\n"+app.lastFeedback);
-        StringBuilder report=new StringBuilder("版本 0.8.0");
+        StringBuilder report=new StringBuilder("版本 0.9.0");
         for(Policy.Kind k:Policy.Kind.values()){
             String channel=Alerts.channel(k,app.policy.getScene());
             android.app.NotificationChannel config=getSystemService(android.app.NotificationManager.class).getNotificationChannel(channel);

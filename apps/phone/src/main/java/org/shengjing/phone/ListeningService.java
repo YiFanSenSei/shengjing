@@ -30,6 +30,12 @@ public final class ListeningService extends Service {
     private final Handler main=new Handler(Looper.getMainLooper());
     @Override public void onCreate(){super.onCreate();app=(App)getApplication();}
     @Override public int onStartCommand(Intent intent,int flags,int startId) {
+        String action=intent==null?null:intent.getAction();
+        if("RESUME_ALERTS".equals(action) || "PAUSE_ALERTS".equals(action)){
+            if(running && session==intent.getLongExtra("session",-1))app.setQuiet("PAUSE_ALERTS".equals(action));
+            if(worker==null)stopSelf(startId);
+            return START_NOT_STICKY;
+        }
         if(intent!=null && "STOP".equals(intent.getAction())) {
             stopRequested=true;running=false;stopSelf();return START_NOT_STICKY;
         }
@@ -191,6 +197,7 @@ public final class ListeningService extends Service {
         running=false;
         if(worker!=null)worker.interrupt();
         if(app.audioSession==session) {
+            app.fieldRound.finish(app.history,"监听已结束");
             app.sessionReport.finish(stopRequested?State.STOPPED:State.INTERRUPTED,SystemClock.elapsedRealtime());
             ++app.audioSession;app.listening=false;
             if(app.sessionReport.state.needsAttention()) app.status=app.sessionReport.state.title;

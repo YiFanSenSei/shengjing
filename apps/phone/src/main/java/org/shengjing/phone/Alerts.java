@@ -37,9 +37,17 @@ final class Alerts {
     }
     static Notification listening(Context c) {
         Intent stop=new Intent(c,ListeningService.class).setAction("STOP");
+        App app=(App)c.getApplicationContext();
+        boolean quiet=app.policy.isQuiet();
+        Intent change=new Intent(c,ListeningService.class).setAction(quiet?"RESUME_ALERTS":"PAUSE_ALERTS")
+            .setData(android.net.Uri.parse("shengjing://listening/"+app.audioSession))
+            .putExtra("session",app.audioSession);
         return new Notification.Builder(c,"listening").setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("声境正在本机监听").setContentText("不保存或上传录音；点停止可关闭")
+            .setContentTitle(quiet?"声境正在监听 · 提醒已暂停":"声境正在本机监听").setContentText("停止监听可释放麦克风")
             .setContentIntent(open(c)).setOngoing(true).setLocalOnly(true)
+            .setOnlyAlertOnce(true)
+            .addAction(new Notification.Action.Builder(null,quiet?"恢复提醒":"暂停提醒",PendingIntent.getService(c,0,change,
+                PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT)).build())
             .addAction(new Notification.Action.Builder(null,"停止",PendingIntent.getService(c,0,stop,PendingIntent.FLAG_IMMUTABLE)).build()).build();
     }
     static void show(Context c,Policy.Alert alert) {
