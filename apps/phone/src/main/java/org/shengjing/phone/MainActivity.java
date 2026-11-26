@@ -11,7 +11,7 @@ import org.shengjing.core.Policy;
 
 public final class MainActivity extends PhoneScreen {
     private TextView status, mode, latest, watch;
-    private Button listen, history, setup;
+    private Button listen, history, setup, recovery;
     private long displayedRevision=-1;
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
@@ -20,6 +20,7 @@ public final class MainActivity extends PhoneScreen {
         status=heading(monitor,"",26);
         mode=text(monitor,"",18);
         listen=button(monitor,"开始监听",this::toggleListening);primary(listen);
+        recovery=button(monitor,"检查设备设置",()->go(SetupActivity.class));
         LinearLayout recent=card();
         heading(recent,"最近提醒",22);
         latest=text(recent,"",19);
@@ -33,7 +34,7 @@ public final class MainActivity extends PhoneScreen {
         text(layout,"声音在本机处理，不保存录音。声境不能作为安全报警保障。",16);
     }
     private void toggleListening(){
-        if(app.listening){stopService(new Intent(this,ListeningService.class));return;}
+        if(app.listening){startService(new Intent(this,ListeningService.class).setAction("STOP"));return;}
         if(!microphone() || !notifications()){go(SetupActivity.class);return;}
         try{startForegroundService(new Intent(this,ListeningService.class));}
         catch(RuntimeException e){app.status="无法启动监听，请检查权限后重试";}
@@ -42,6 +43,7 @@ public final class MainActivity extends PhoneScreen {
     @Override void refresh(){
         show(status,app.status.startsWith("正在本机监听：")?"正在监听":app.status);
         show(listen,app.listening?"停止监听":"开始监听");
+        recovery.setVisibility(app.sessionReport.state.needsAttention()?Button.VISIBLE:Button.GONE);
         int enabled=0,available=0;
         for(Policy.Kind k:Policy.Kind.values()){
             if(!app.policy.isEnabled(k))continue;
@@ -50,8 +52,9 @@ public final class MainActivity extends PhoneScreen {
         }
         String delivery=app.policy.isQuiet()?"真实提醒已暂停":enabled==0?"所有声音类别已关闭":
             available==0?"声音通知被阻止":available<enabled?"部分声音通知被阻止":"已关注 "+enabled+" 类声音";
-        long age=SystemClock.elapsedRealtime()-app.diagnosticsUpdatedAt;
-        String stalled=app.listening && app.diagnosticsUpdatedAt>0 && age>=5000?"\n采集状态已有 "+age/1000+" 秒未更新，可打开诊断查看":"";
+        long age=app.sessionReport.sinceLastWindow(SystemClock.elapsedRealtime());
+        String stalled=app.listening && app.status.startsWith("正在本机监听") && age>=5000
+            ?"\n已有 "+age/1000+" 秒没有新的声音处理结果，可打开诊断查看":"";
         show(mode,app.policy.getScene().title+"场景 · "+delivery+stalled);
         boolean ready=microphone() && notifications();
         long confirmed=app.store.watchConfirmedAt();

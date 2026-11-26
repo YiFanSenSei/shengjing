@@ -6,6 +6,8 @@
 
 ## 当前协作模式
 
+0.7.0 增加最近一次监听摘要和中断恢复提示。[监听恢复与锁屏验收](docs/listening-recovery.md)
+
 0.6.0 将日常监听、设备引导和诊断拆成独立页面。[手机操作与阶段验收](docs/daily-interface.md)
 
 0.5.0 的频率反馈、个人间隔建议和交互预览见[偏好功能与集中验收](docs/preference-stage.md)。
