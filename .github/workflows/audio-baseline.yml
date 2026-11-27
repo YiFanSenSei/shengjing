@@ -21,3 +21,14 @@ jobs:
           .venv/bin/python --version
           .venv/bin/python -m pip install --only-binary=:all: numpy==2.2.6 scipy==1.16.3
           .venv/bin/python -m unittest discover -s evaluation -p 'test_audio_baseline.py'
+      - name: Verify continuous policy replay on a fixed score sequence
+        run: |
+          mkdir -p tmp/continuous-check
+          javac -encoding UTF-8 -d tmp/continuous-check agent/engine/src/main/java/org/shengjing/core/Policy.java evaluation/ContinuousReplay.java
+          python3 - <<'PY'
+          import subprocess
+          scores = "1000\t0.5\t0.1\t0.1\n1250\t0.8\t0.1\t0.1\n21000\t0.8\t0.1\t0.1\n"
+          for scene, enhanced, expected in [('HOME','false',[1250,21000]), ('HOME','true',[1000,21000]), ('STUDY','true',[1000])]:
+              result = subprocess.run(['java','-cp','tmp/continuous-check','ContinuousReplay',scene,enhanced],input=scores,text=True,capture_output=True,check=True)
+              assert [int(line.split()[0]) for line in result.stdout.splitlines()] == expected
+          PY

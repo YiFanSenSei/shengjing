@@ -1,5 +1,7 @@
 # 离线公开音频基线
 
+新增 [0.9.0 连续背景与门铃插入结果](../docs/continuous-replay.md) 和 [D 端现场验收单与填表示例](field-protocol.md)。
+
 阶段 04 的电脑端验收工具及结果见[场景策略回放与门铃数据盘点](stage04-replay.md)。
 
 门铃音频实测见[四段公开录音及客厅噪声对照](../docs/doorbell-public-probe.md)。
