@@ -1,0 +1,14 @@
+{
+  "source": "synthetic",
+  "duration_s": 1800,
+  "truth": [
+    {"label":"knock","onset_s":120,"offset_s":121},
+    {"label":"doorbell","onset_s":600,"offset_s":602},
+    {"label":"alarm","onset_s":1200,"offset_s":1204}
+  ],
+  "phone": [
+    {"label":"knock","at_s":121.2,"delivery":"requested","wrist":"seen","wrist_s":122.5,"simulated":false},
+    {"label":"doorbell","at_s":602,"delivery":"blocked","wrist":"unknown","simulated":false},
+    {"label":"knock","at_s":1300,"delivery":"requested","wrist":"unknown","simulated":false}
+  ]
+}

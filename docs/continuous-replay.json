@@ -1,0 +1,247 @@
+{
+  "model_sha256": "10c95ea3eb9a7bb4cb8bddf6feb023250381008177ac162ce169694d05c317de",
+  "tensorflow": "2.20.0",
+  "tracks": {
+    "DLIVING": {
+      "duration_s": 300.004,
+      "windows": 1197,
+      "alerts": {
+        "HOME_standard": [],
+        "HOME_enhanced": [],
+        "STUDY_standard": [],
+        "STUDY_enhanced": []
+      },
+      "archive_md5": "46741384d9e434a0bd8b3ec1830b6052",
+      "paired_10dB": {
+        "duration_s": 120.0,
+        "windows": 477,
+        "alerts": {
+          "HOME_standard": [
+            {
+              "at_s": 103.5,
+              "kind": "DOORBELL",
+              "score": 0.66797
+            }
+          ],
+          "HOME_enhanced": [
+            {
+              "at_s": 103.5,
+              "kind": "DOORBELL",
+              "score": 0.66797
+            }
+          ],
+          "STUDY_standard": [
+            {
+              "at_s": 103.5,
+              "kind": "DOORBELL",
+              "score": 0.66797
+            }
+          ],
+          "STUDY_enhanced": [
+            {
+              "at_s": 103.5,
+              "kind": "DOORBELL",
+              "score": 0.66797
+            }
+          ]
+        },
+        "insertions": [
+          {
+            "file": "Doorbell-classic-dingdong.ogg",
+            "onset_s": 10,
+            "offset_s": 20.620687500000003
+          },
+          {
+            "file": "Doorbell-cheap-dingdong.ogg",
+            "onset_s": 40,
+            "offset_s": 42.575625
+          },
+          {
+            "file": "Doorbell-old-tring.ogg",
+            "onset_s": 70,
+            "offset_s": 74.3411875
+          },
+          {
+            "file": "Electronic_doorbell.ogg",
+            "onset_s": 100,
+            "offset_s": 107.701375
+          }
+        ]
+      }
+    },
+    "OOFFICE": {
+      "duration_s": 300.004,
+      "windows": 1197,
+      "alerts": {
+        "HOME_standard": [],
+        "HOME_enhanced": [],
+        "STUDY_standard": [],
+        "STUDY_enhanced": []
+      },
+      "archive_md5": "7b61cc2d182d5a654cb9c3101ddd4041",
+      "paired_10dB": {
+        "duration_s": 120.0,
+        "windows": 477,
+        "alerts": {
+          "HOME_standard": [
+            {
+              "at_s": 10.5,
+              "kind": "DOORBELL",
+              "score": 0.73828
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.80078
+            }
+          ],
+          "HOME_enhanced": [
+            {
+              "at_s": 10.5,
+              "kind": "DOORBELL",
+              "score": 0.73828
+            },
+            {
+              "at_s": 71.5,
+              "kind": "ALARM",
+              "score": 0.5
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.80078
+            }
+          ],
+          "STUDY_standard": [
+            {
+              "at_s": 10.5,
+              "kind": "DOORBELL",
+              "score": 0.73828
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.80078
+            }
+          ],
+          "STUDY_enhanced": [
+            {
+              "at_s": 10.5,
+              "kind": "DOORBELL",
+              "score": 0.73828
+            },
+            {
+              "at_s": 71.5,
+              "kind": "ALARM",
+              "score": 0.5
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.80078
+            }
+          ]
+        },
+        "insertions": [
+          {
+            "file": "Doorbell-classic-dingdong.ogg",
+            "onset_s": 10,
+            "offset_s": 20.620687500000003
+          },
+          {
+            "file": "Doorbell-cheap-dingdong.ogg",
+            "onset_s": 40,
+            "offset_s": 42.575625
+          },
+          {
+            "file": "Doorbell-old-tring.ogg",
+            "onset_s": 70,
+            "offset_s": 74.3411875
+          },
+          {
+            "file": "Electronic_doorbell.ogg",
+            "onset_s": 100,
+            "offset_s": 107.701375
+          }
+        ]
+      }
+    },
+    "DKITCHEN": {
+      "duration_s": 300.004,
+      "windows": 1197,
+      "alerts": {
+        "HOME_standard": [],
+        "HOME_enhanced": [],
+        "STUDY_standard": [],
+        "STUDY_enhanced": []
+      },
+      "archive_md5": "7ffbf52d7f4699f96927846103dc8788",
+      "paired_10dB": {
+        "duration_s": 120.0,
+        "windows": 477,
+        "alerts": {
+          "HOME_standard": [
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.91797
+            }
+          ],
+          "HOME_enhanced": [
+            {
+              "at_s": 71.5,
+              "kind": "ALARM",
+              "score": 0.58594
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.91797
+            }
+          ],
+          "STUDY_standard": [
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.91797
+            }
+          ],
+          "STUDY_enhanced": [
+            {
+              "at_s": 71.5,
+              "kind": "ALARM",
+              "score": 0.58594
+            },
+            {
+              "at_s": 102.0,
+              "kind": "DOORBELL",
+              "score": 0.91797
+            }
+          ]
+        },
+        "insertions": [
+          {
+            "file": "Doorbell-classic-dingdong.ogg",
+            "onset_s": 10,
+            "offset_s": 20.620687500000003
+          },
+          {
+            "file": "Doorbell-cheap-dingdong.ogg",
+            "onset_s": 40,
+            "offset_s": 42.575625
+          },
+          {
+            "file": "Doorbell-old-tring.ogg",
+            "onset_s": 70,
+            "offset_s": 74.3411875
+          },
+          {
+            "file": "Electronic_doorbell.ogg",
+            "onset_s": 100,
+            "offset_s": 107.701375
+          }
+        ]
+      }
+    }
+  }
+}
