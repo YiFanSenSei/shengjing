@@ -15,9 +15,13 @@ jobs:
       - name: Download verified tool and model
         run: python3 scripts/bootstrap.py --gradle --model
       - name: Build and test
+        env:
+          FIELD_EXPORT_FIXTURE: ${{ runner.temp }}/field-device-test.json
         run: |
           export JAVA_HOME="$JAVA_HOME_17_X64"
           tmp/tools/gradle-8.11.1/bin/gradle --no-daemon :engine:policyTest :engine:diagnosticsTest :engine:historyTest :phone:testDebugUnitTest :phone:assembleDebug :watchProbe:assembleDebug :phone:lintDebug :watchProbe:lintDebug
+      - name: Join Android test output with a real browser observation form
+        run: python3 -m evaluation.verify_field_handoff google-chrome "$RUNNER_TEMP/field-device-test.json"
       - name: Verify 16 KB native library alignment
         run: python3 scripts/check_apk_pages.py apps/phone/build/outputs/apk/debug/phone-debug.apk
       - name: Upload test APKs
