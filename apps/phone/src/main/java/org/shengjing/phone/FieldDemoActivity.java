@@ -2,6 +2,11 @@ package org.shengjing.phone;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Intent;
+import android.content.ActivityNotFoundException;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.widget.*;
@@ -11,10 +16,13 @@ public final class FieldDemoActivity extends PhoneScreen {
     private TextView readiness, result;
     private Button listen, begin, finish, copy, channel, options, setup;
     private LinearLayout wrist;
+    private Button export;
+    private String pendingRound;
     private String blockedChannel;
 
     @Override public void onCreate(Bundle state){
         super.onCreate(state);
+        if(state!=null)pendingRound=state.getString("pendingRound");
         heading(layout,"现场演示与锁屏核对",28);
         LinearLayout device=card();
         heading(device,"设备准备",22);
@@ -26,15 +34,16 @@ public final class FieldDemoActivity extends PhoneScreen {
         LinearLayout round=card();
         heading(round,"本轮演示",22);
         result=text(round,"",18);
-        begin=button(round,"开始新一轮",()->{app.fieldRound.begin(app.history,app.policy.getScene());refresh();});
+        begin=button(round,"开始新一轮",()->{app.fieldRound.begin(app.history,app.policy);refresh();});
         wrist=new LinearLayout(this);wrist.setOrientation(LinearLayout.VERTICAL);round.addView(wrist);
         button(wrist,"本轮在手表看到了提醒",()->{app.fieldRound.observeWatch(true);refresh();});
         button(wrist,"本轮在手表未看到提醒",()->{app.fieldRound.observeWatch(false);refresh();});
-        finish=button(round,"结束本轮并保存摘要",()->{app.fieldRound.finish(app.history,"本轮已结束");refresh();});
+        finish=button(round,"结束本轮并保存摘要",()->{app.fieldRound.complete(app.history);refresh();});
         copy=button(round,"复制本轮摘要",()->{
             getSystemService(ClipboardManager.class).setPrimaryClip(ClipData.newPlainText("声境现场演示",app.fieldRound.summary(app.history)));
             Toast.makeText(this,"已复制本轮摘要",Toast.LENGTH_SHORT).show();
         });
+        export=button(round,"保存本轮手机事件文件",this::chooseDestination);
         button(layout,"查看监听连续性",()->go(DiagnosticsActivity.class));
         button(layout,"返回首页",this::finish);
     }
@@ -70,6 +79,36 @@ public final class FieldDemoActivity extends PhoneScreen {
         wrist.setVisibility(active?Button.VISIBLE:Button.GONE);
         finish.setVisibility(active?Button.VISIBLE:Button.GONE);
         copy.setVisibility(!active && app.fieldRound.exists()?Button.VISIBLE:Button.GONE);
-        show(result,app.fieldRound.summary(app.history));
+        export.setVisibility(app.fieldRound.exportJson()!=null?Button.VISIBLE:Button.GONE);
+        show(result,(active?app.fieldRound.progress()+"\n":"")+app.fieldRound.summary(app.history));
+    }
+    private void chooseDestination(){
+        pendingRound=app.fieldRound.roundCode();
+        Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+            .setType("application/json").putExtra(Intent.EXTRA_TITLE,"shengjing-"+pendingRound+".json");
+        try{startActivityForResult(intent,1);}
+        catch(ActivityNotFoundException e){Toast.makeText(this,"没有可用的文件保存位置",Toast.LENGTH_LONG).show();}
+    }
+    @Override protected void onSaveInstanceState(Bundle state){
+        super.onSaveInstanceState(state);state.putString("pendingRound",pendingRound);
+    }
+    @Override protected void onActivityResult(int request,int code,Intent data){
+        super.onActivityResult(request,code,data);
+        if(request!=1 || code!=RESULT_OK || data==null || data.getData()==null)return;
+        String json=app.fieldRound.exportJson();
+        if(json==null || !app.fieldRound.roundCode().equals(pendingRound)){
+            Toast.makeText(this,"场次已变更，请重新选择",Toast.LENGTH_LONG).show();return;
+        }
+        var uri=data.getData();
+        new Thread(()->{
+            String message;
+            try(OutputStream stream=getContentResolver().openOutputStream(uri,"wt")){
+                if(stream==null)throw new IOException();
+                stream.write(json.getBytes(StandardCharsets.UTF_8));
+                message="手机事件文件已保存";
+            }catch(IOException | RuntimeException e){message="保存失败，请重新选择位置";}
+            String outcome=message;
+            runOnUiThread(()->Toast.makeText(getApplicationContext(),outcome,Toast.LENGTH_LONG).show());
+        },"field-export").start();
     }
 }

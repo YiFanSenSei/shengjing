@@ -52,6 +52,7 @@ final class Alerts {
     }
     static void show(Context c,Policy.Alert alert) {
         App app=(App)c.getApplicationContext();
+        long at=android.os.SystemClock.elapsedRealtime();
         String channel=channel(alert.kind,alert.scene);
         boolean allowed=available(c,channel);
         EventHistory.Entry entry=app.history.add(alert,System.currentTimeMillis(),allowed?EventHistory.Delivery.REQUESTED:EventHistory.Delivery.BLOCKED);
@@ -67,7 +68,7 @@ final class Alerts {
                 catch(NumberFormatException ignored) { /* Ignore unrelated tags. */ }
             }
         }
-        if(!allowed) { app.lastEvent+=" · 通知被系统设置阻止，请检查权限和类别通知";app.saveHistory();return; }
+        if(!allowed) { app.lastEvent+=" · 通知被系统设置阻止，请检查权限和类别通知";app.saveHistory();app.fieldRound.record(entry,at);return; }
         Intent detail=new Intent(c,HistoryActivity.class).putExtra("eventId",entry.id)
             .setData(android.net.Uri.parse("shengjing://event/"+entry.id));
         Notification.Builder b=new Notification.Builder(c,channel)
@@ -84,5 +85,6 @@ final class Alerts {
         app.saveHistory();
         try { manager.notify("event:"+entry.id,100,b.build()); }
         catch(RuntimeException e) { app.history.delivery(entry.id,EventHistory.Delivery.FAILED);app.lastEvent+=" · 通知发送失败";app.saveHistory(); }
+        app.fieldRound.record(app.history.find(entry.id),at);
     }
 }

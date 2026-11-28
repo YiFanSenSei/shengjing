@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>声境 · 现场观察</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f5f0;color:#162f29;font:17px/1.55 "Source Sans 3","Microsoft YaHei",sans-serif}
+main{max-width:760px;margin:auto;padding:24px 16px}h1{margin:0;font-size:2rem}h2{font-size:1.25rem;margin:0 0 .5em}
+section{background:white;border:1px solid #d2ded8;border-radius:12px;margin:16px 0;padding:18px}p{margin:.5em 0}
+button,input,select{font:inherit;padding:8px;max-width:100%}button{border:1px solid #608477;border-radius:6px;background:#eff5f1;color:inherit;min-height:46px;margin:3px;cursor:pointer}
+button:disabled{opacity:.52;cursor:default}.primary,button[aria-pressed=true]{background:#205b4c;color:white}
+output{font:2rem monospace;display:block}li{margin:.35em 0}label{display:block;margin:.5em 0}small{display:block;color:#425c54}
+</style>
+<main>
+<h1>现场观察</h1>
+<section><h2>同一场次，同步开始</h2>
+<p>在电脑上打开本页。A 点「开始新一轮」的同时，D 点「开始计时」。观察期间保持页面打开、电脑不休眠。不要刷新。</p>
+<output id="clock">0.0 秒</output>
+<button id="start" class="primary">开始计时</button><button id="stop" disabled>结束观察</button>
+<label>手机显示的场次编号 <input id="round" maxlength="8" size="10" autocomplete="off" placeholder="8 位编号"></label>
+</section>
+<section><h2>独立记录真实声音</h2><p>声音开始和结束时各点一次对应按钮。以实际听到或看到的触发为准。</p>
+<div id="sounds"></div><ol id="events"></ol>
+<button id="watch" disabled>刚在腕上看到提醒</button><p id="marks"></p>
+<button id="undo" disabled>撤销上一次标记</button>
+</section>
+<section><h2>结束后核对腕上观察</h2>
+<p>先让 A 结束本轮，再结束 D 的观察。载入 A 保存的 JSON，在每条手机事件旁选择实际结果。</p>
+<input id="file" aria-label="手机事件文件" type="file" accept=".json,application/json" disabled>
+<div id="rows"></div>
+<label><input type="checkbox" id="complete"> 我已核对计时起点、全程真实事件和观察覆盖范围</label>
+<button id="save" class="primary">保存观察文件</button><p id="message" role="status"></p>
+<small>数据仅在本页内存中处理。结束前也可保存草稿。草稿保留当前记录，但不能用于计分。</small>
+</section></main>
+<script>
+'use strict';
+const el=id=>document.getElementById(id);
+const labels={knock:'敲门',doorbell:'门铃',alarm:'闹钟'};
+const opened=new Map(), truth=[],marks=[],selections=new Map(),undo=[];
+let start=null, end=null, phone=null, timer=null;
+const elapsed=()=>Math.round(((end??performance.now())-start))/1000;
+const running=()=>start!==null&&end===null;
+function message(s){el('message').textContent=s}
+function controls(){
+  el('start').disabled=start!==null;
+  el('stop').disabled=!running()||opened.size>0;
+  el('watch').disabled=!running();
+  el('undo').disabled=!running()||undo.length===0;
+  el('file').disabled=end===null;
+  for(const b of el('sounds').children){
+    b.disabled=!running();
+    b.textContent=(opened.has(b.value)?'结束':'开始')+labels[b.value];
+    b.setAttribute('aria-pressed',String(opened.has(b.value)));
+  }
+}
+function tick(){el('clock').textContent=elapsed().toFixed(1)+' 秒'}
+for(const [label,title] of Object.entries(labels)){
+  const b=document.createElement('button');b.value=label;el('sounds').append(b);
+  b.onclick=()=>{
+    if(!running())return;
+    const t=elapsed();
+    if(opened.has(label)){
+      const onset=opened.get(label);truth.push({label,onset_s:onset,offset_s:t});opened.delete(label);
+      const li=document.createElement('li');li.textContent=title+'  '+onset.toFixed(1)+' 至 '+t.toFixed(1)+' 秒';el('events').append(li);
+      undo.push(()=>{li.remove();truth.pop();opened.set(label,onset)});
+    }else{opened.set(label,t);undo.push(()=>opened.delete(label))}
+    controls();
+  };
+}
+el('start').onclick=()=>{start=performance.now();tick();timer=setInterval(tick,150);controls()};
+el('stop').onclick=()=>{end=performance.now();clearInterval(timer);tick();controls()};
+function showMarks(){el('marks').textContent='腕上观察时刻（秒） '+marks.map(t=>t.toFixed(1)).join('、')}
+el('watch').onclick=()=>{marks.push(elapsed());showMarks();undo.push(()=>{marks.pop();showMarks()});controls()};
+el('undo').onclick=()=>{if(running()&&undo.length)undo.pop()();controls()};
+el('file').onchange=async()=>{
+  el('rows').replaceChildren();phone=null;selections.clear();
+  try{
+    const data=JSON.parse(await el('file').files[0].text());
+    if(!/^[0-9a-f]{8}$/.test(data.round)||data.round!==el('round').value.trim().toLowerCase())throw Error('请先核对手机场次编号，再载入文件。');
+    if(data.schema!=='shengjing.phone.v1'||!Array.isArray(data.phone)||data.phone.length>100)throw Error('不支持的手机文件。');
+    for(const row of data.phone){
+      const line=document.createElement('label');
+      line.textContent='#'+row.n+' · '+Number(row.at_s).toFixed(1)+' 秒 · '+labels[row.label]+' · '+({requested:'已请求',blocked:'受阻',failed:'发送失败'}[row.delivery]??'未知');
+      if(row.delivery==='requested'){
+        const choice=document.createElement('select');choice.setAttribute('aria-label','第 '+row.n+' 条的腕上观察');
+        for(const [value,title] of [['unknown','未观察或无法配对'],['missed','观察完整，未看到'],['seen','已看到，时刻不详'],...marks.map((t,i)=>[String(i),'已看到 · '+t.toFixed(1)+' 秒'])]){
+          choice.add(new Option(title,value));
+        }
+        selections.set(row.n,choice);line.append(' ',choice);
+      }
+      el('rows').append(line);
+    }
+    phone=data;message('已载入 '+data.phone.length+' 条真实提醒，另排除 '+data.simulated_excluded+' 条模拟提醒。');
+  }catch(error){el('rows').replaceChildren();el('file').value='';message(error.message)}
+};
+el('save').onclick=()=>{
+  const round=el('round').value.trim().toLowerCase();
+  if(start===null||!/^[a-f0-9]{8}$/.test(round)){message('请开始计时并填写 8 位场次编号。');return}
+  const complete=el('complete').checked;
+  if(complete&&(!phone||end===null||phone.round!==round||elapsed()<phone.duration_s)){
+    message('完整计分需要同一场次的手机文件，且观察时段须覆盖手机场次。取消勾选可保存草稿。');return;
+  }
+  const wrist=[],used=new Set();
+  for(const [n,select] of selections){
+    const v=select.value;
+    if(['unknown','seen','missed'].includes(v)){wrist.push({n,wrist:v});continue}
+    const at=marks[Number(v)], event=phone.phone.find(row=>row.n===n);
+    if(used.has(v)||at<event.at_s||at>phone.duration_s){message('腕上时刻重复、早于手机事件或超出场次，请核对。');return}
+    used.add(v);wrist.push({n,wrist:'seen',wrist_s:at});
+  }
+  const data={schema:'shengjing.observer.v1',round,complete,observed_s:elapsed(),truth,wrist,
+    wrist_marks_s:marks,unfinished:Array.from(opened.entries())};
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const a=document.createElement('a');a.href=url;a.download='observer-'+round+(complete?'':'-draft')+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);message(complete?'已生成观察文件。':'已生成当前记录的草稿。');
+};
+controls();
+</script></html>

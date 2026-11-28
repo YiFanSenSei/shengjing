@@ -6,6 +6,8 @@
 
 ## 当前协作模式
 
+0.10.0 支持将手机逐事件明细与 D 的独立观察配对。[A、D 同场验收说明](evaluation/handoff-guide.md)
+
 0.9.0 增加现场演示、按轮核对提醒和锁屏操作。[现场流程与集中验收](docs/field-demo.md)
 
 0.8.0 支持从手机通知进入对应记录，以及分声音类别核对手表提醒。[通知操作与验收](docs/notification-journey.md)
