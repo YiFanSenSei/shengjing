@@ -16,3 +16,9 @@ tasks.register('historyTest', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'org.shengjing.core.EventHistoryTest'
 }
+
+tasks.register('policyReplay', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'org.shengjing.core.PolicyReplay'
+}
