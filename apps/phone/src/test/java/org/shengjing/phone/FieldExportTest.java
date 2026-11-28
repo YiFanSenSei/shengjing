@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 import static org.robolectric.Shadows.shadowOf;
 import android.Manifest;
 import android.os.Looper;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -41,7 +41,11 @@ public class FieldExportTest {
         assertEquals("requested",first.getString("delivery"));
         assertEquals("blocked",doc.getJSONArray("phone").getJSONObject(1).getString("delivery"));
         String fixture=System.getenv("FIELD_EXPORT_FIXTURE");
-        if(fixture!=null)Files.writeString(Path.of(fixture),frozen);
+        if(fixture!=null){
+            try(FileOutputStream output=new FileOutputStream(fixture)){
+                output.write(frozen.getBytes(StandardCharsets.UTF_8));
+            }
+        }
         app.clearHistory();
         assertNull(app.fieldRound.exportJson());
     }
